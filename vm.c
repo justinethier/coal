@@ -236,6 +236,54 @@ void perfTest() {
   }
 }
 
+enum Instruction {
+  INST_LITERAL = 0x00,
+  INST_IO = 0x01,
+  INST_ADD = 0x02
+};
+
+void evalAdd(VM* vm) {
+  Object* a = pop(vm);
+  Object* b = pop(vm);
+  assert(a->type == OBJ_INT, "a is not an integer");
+  assert(b->type == OBJ_INT, "b is not an integer");
+  pushInt(vm, a->value + b->value);
+}
+
+void eval(VM* vm, unsigned char bytecode[], int size) {
+  int i = 0;
+  Object* acc;
+
+  while (i < size) {
+    unsigned char instruction = bytecode[i];
+    switch (instruction) {
+      case INST_LITERAL:
+        pushInt(vm, (int) bytecode[++i]);
+        break;
+
+      case INST_IO:
+        acc = pop(vm);
+        objectPrint(acc);
+        break;
+
+      case INST_ADD:
+        evalAdd(vm);
+        break;
+    }
+
+    i++;
+  }
+} 
+
+// TODO: bytecode will change too much for this test to be stable.
+// better to create a simple compiler and move the test there
+int jaetest(){
+  VM* vm = newVM();
+  unsigned char bytecode[] = {INST_LITERAL, 1, INST_LITERAL, 2, INST_ADD, INST_IO};
+
+  eval(vm, bytecode, 6);
+}
+
 int main(int argc, const char * argv[]) {
   test1();
   test2();
@@ -244,5 +292,6 @@ int main(int argc, const char * argv[]) {
 
   perfTest();
 
+  jaetest();
   return 0;
 }
