@@ -9,9 +9,10 @@
 #include "Parser.h"
 #include "Lexer.h"
  
-// int yyerror(SExpression **expression, yyscan_t scanner, const char *msg) {
-//     // Add error handling routine as needed
-// }
+int yyerror(SExpression **expression, yyscan_t scanner, const char *msg) {
+    // Add error handling routine as needed
+    fprintf(stderr,"Error:%s\n",msg); return 0;
+}
  
 %}
  

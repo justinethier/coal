@@ -12,6 +12,12 @@ clc: $(FILES)
 vm: vm.c
 	$(CC) $(CFLAGS) vm.c -o vm
 
+Lexer.c: Lexer.l
+	flex Lexer.l
+
+Parser.c: Parser.y Lexer.c
+	bison Parser.y
+
 ##wc: $(FILES)
 ##  $(MAKE) $(SOBJ)
 ##  $(MAKE) $(OBJS)
@@ -28,4 +34,5 @@ vm: vm.c
 
 .PHONY: clean
 clean:
-	rm -rf vm *.o *.yy.c a.out
+	rm -rf vm *.o *.yy.c a.out Lexer.c Lexer.h Parser.c Parser.h clc
+

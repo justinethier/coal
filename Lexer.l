@@ -39,6 +39,6 @@ WS          [ \r\n\t]*
  
 %%
  
-int yyerror(const char *msg) {
-    fprintf(stderr,"Error:%s\n",msg); return 0;
-}
+//int yyerror(const char *msg) {
+//    fprintf(stderr,"Error:%s\n",msg); return 0;
+//}
