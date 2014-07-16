@@ -5,6 +5,7 @@
 #include "Parser.h"
 #include "Lexer.h"
  
+#include "vm.h"
 #include <stdio.h>
  
 int yyparse(SExpression **expression, yyscan_t scanner);
@@ -34,18 +35,27 @@ SExpression *getAST(const char *expr)
     return expression;
 }
  
-int evaluate(SExpression *e)
+int evaluate(SExpression *e, FILE *out)
 {
+    unsigned char instr;
+
     switch (e->type) {
         case eVALUE:
-            printf("LITERAL %d\n", e->value);
+            instr = INST_LITERAL;
+            fwrite(&instr, sizeof(instr), 1, out);
+            instr = (unsigned char)e->value;
+            fwrite(&instr, sizeof(instr), 1, out);
+          // TODO: write an Object here?
+          //printf("LITERAL %d\n", e->value);
             return e->value;
         case eMULTIPLY:
-            printf("MUL \n");
-            return evaluate(e->left) * evaluate(e->right);
+            instr = INST_MUL;
+            fwrite(&instr, sizeof(instr), 1, out);
+            return evaluate(e->left, out) * evaluate(e->right, out);
         case ePLUS:
-            printf("ADD \n");
-            return evaluate(e->left) + evaluate(e->right);
+            instr = INST_ADD;
+            fwrite(&instr, sizeof(instr), 1, out);
+            return evaluate(e->left, out) + evaluate(e->right, out);
         default:
             // shouldn't be here
             return 0;
@@ -54,13 +64,16 @@ int evaluate(SExpression *e)
  
 int main(void)
 {
+    FILE *outf;
     SExpression *e = NULL;
     char test[]=" 4 + 2*10 + 3*( 5 + 1 )";
     int result = 0;
  
     e = getAST(test);
  
-    result = evaluate(e);
+    outf = fopen("out.bin", "wb"); // TODO: from cmd line
+    result = evaluate(e, outf);
+    fclose(outf);
  
     printf("Result of '%s' is %d\n", test, result);
  

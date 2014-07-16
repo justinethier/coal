@@ -221,6 +221,14 @@ void evalAdd(VM* vm) {
   pushInt(vm, a->value + b->value);
 }
 
+void evalMul(VM* vm) {
+  Object* a = pop(vm);
+  Object* b = pop(vm);
+  assert(a->type == OBJ_INT, "a is not an integer");
+  assert(b->type == OBJ_INT, "b is not an integer");
+  pushInt(vm, a->value * b->value);
+}
+
 void eval(VM* vm, unsigned char bytecode[], int size) {
   int i = 0;
   Object* acc;
@@ -240,6 +248,10 @@ void eval(VM* vm, unsigned char bytecode[], int size) {
       case INST_ADD:
         evalAdd(vm);
         break;
+
+      case INST_MUL:
+        evalMul(vm);
+        break;
     }
 
     i++;
@@ -249,13 +261,20 @@ void eval(VM* vm, unsigned char bytecode[], int size) {
 // TODO: bytecode will change too much for this test to be stable.
 // better to create a simple compiler and move the test there
 int jaetest(){
+  FILE *bin = fopen("out.bin", "rb");
+  unsigned char bytecode[1024]; // TODO: use a different data structure
   VM* vm = newVM();
-  unsigned char bytecode[] = {INST_LITERAL, 1, INST_LITERAL, 2, INST_ADD, INST_IO};
+  //unsigned char bytecode[] = {INST_LITERAL, 1, INST_LITERAL, 2, INST_ADD, INST_IO};
 
-  eval(vm, bytecode, 6);
+  int num = fread(bytecode, 1024, 1, bin);
+// TODO: bytecode[num++] = INST_IO;
+  fclose(bin);
+
+  eval(vm, bytecode, num); 
 }
 
 int main(int argc, const char * argv[]) {
+// TODO: wrap in a while(1) and see if memory usage is constant
   test1();
   test2();
   test3();

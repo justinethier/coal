@@ -30,9 +30,10 @@ typedef struct sObject {
 } Object;
 
 enum Instruction {
-  INST_LITERAL = 0x00,
-  INST_IO = 0x01,
-  INST_ADD = 0x02
+    INST_LITERAL            = 0x00
+  , INST_IO                 = 0x01
+  , INST_ADD                = 0x02
+  , INST_MUL                = 0x03
 };
  
 #endif // __VM_H__

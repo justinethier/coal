@@ -6,6 +6,8 @@ COBJ = Lexer Parser Expression compiler
 FILES = $(addsuffix .c, $(COBJ))
 OBJS = $(addsuffix .o, $(COBJ))
 
+all: clc vm
+
 clc: $(FILES)
 	$(CC) $(CFLAGS) $(FILES) -o clc
 
