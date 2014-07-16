@@ -1,6 +1,6 @@
 CC = gcc
 CSTD = -std=c99
-CFLAGS = $(CSTD)
+CFLAGS = $(CSTD) -g
 
 COBJ = Lexer Parser Expression compiler
 FILES = $(addsuffix .c, $(COBJ))
@@ -33,6 +33,10 @@ Parser.c: Parser.y Lexer.c
 #	flex --outfile=lisp_lexer.yy.c  $<
 ##	$(CC)  $(CFLAGS) -c lisp_lexer.yy.c -o lexer.o
 #	$(CC)  $(CFLAGS) lisp_lexer.yy.c -lfl
+
+test: clc vm
+	./clc
+	ls -l out.bin
 
 .PHONY: clean
 clean:

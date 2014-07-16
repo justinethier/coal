@@ -141,6 +141,9 @@ void objectPrint(Object* object) {
       objectPrint(object->tail);
       printf(")");
       break;
+
+    default:
+      printf("Unknown object type %d\n", object->type);
   }
 }
 
@@ -235,6 +238,8 @@ void eval(VM* vm, unsigned char bytecode[], int size) {
 
   while (i < size) {
     unsigned char instruction = bytecode[i];
+
+    printf("DEBUG OP: %d\n", instruction);
     switch (instruction) {
       case INST_LITERAL:
         pushInt(vm, (int) bytecode[++i]);
@@ -266,10 +271,9 @@ int jaetest(){
   VM* vm = newVM();
   //unsigned char bytecode[] = {INST_LITERAL, 1, INST_LITERAL, 2, INST_ADD, INST_IO};
 
-  int num = fread(bytecode, 1024, 1, bin);
-// TODO: bytecode[num++] = INST_IO;
+  int num = fread(bytecode, sizeof(unsigned char), 1024, bin);
   fclose(bin);
-
+printf("DEBUG num = %d\n", num);
   eval(vm, bytecode, num); 
 }
 

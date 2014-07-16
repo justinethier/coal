@@ -71,12 +71,14 @@ SStatements *initStmts(SStatement *s) {
     return ss;
 }
 
-void addStmt(SStatements *ss, SStatement *s) {
+SStatements *addStmt(SStatements *ss, SStatement *s) {
   if (ss->head == NULL) {
     ss->head = ss->tail = s;
   } else {
     ss->tail->next = ss->tail = s;
   }
+
+  return ss;
 }
 
 SStatement *newStmt(EStatementType type, SExpression *expr) {
@@ -85,4 +87,17 @@ SStatement *newStmt(EStatementType type, SExpression *expr) {
   s->expr = expr;
   s->next = NULL;
   return s;
+}
+
+void deleteStmts(SStatements *ss) {
+  SStatement *next;
+  if (ss == NULL) return;
+
+  for (SStatement *s = ss->head; s; s = next) {
+    next = s->next;
+    deleteExpression(s->expr);
+    free(s);
+  }
+
+  free(ss);
 }

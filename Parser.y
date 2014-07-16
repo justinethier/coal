@@ -9,7 +9,7 @@
 #include "Parser.h"
 #include "Lexer.h"
  
-int yyerror(SExpression **expression, yyscan_t scanner, const char *msg) {
+int yyerror(SStatements **stmts, yyscan_t scanner, const char *msg) {
     // Add error handling routine as needed
     fprintf(stderr,"Error:%s\n",msg); return 0;
 }
@@ -30,7 +30,7 @@ typedef void* yyscan_t;
  
 %define api.pure
 %lex-param   { yyscan_t scanner }
-%parse-param { SExpression **expression }
+%parse-param { SStatements **stmts }
 %parse-param { yyscan_t scanner }
  
 %union {
@@ -64,14 +64,18 @@ input : stmts
 
 // See http://stackoverflow.com/questions/1655166/using-bison-to-parse-list-of-elements
 stmts: /* empty */ { $$ = NULL; }
-  | stmts stmt { if ($1 == NULL) 
-                   $$ = initStmts($2); 
-                 else
-                   addStmt((SStatements *)$1, $2); }
+  | stmts stmt { printf("processing stmt"); if ($1 == NULL) {
+                   printf("initStmts");
+                   *stmts = $$ = initStmts($2); 
+                 } else {
+                   $$ = addStmt((SStatements *)$1, $2); 
+                 } }
   ;
 
 //stmt: TOKEN_PRINT expr { *expression = $1; }
-stmt: TOKEN_PRINT expr { $$ = newStmt(sPRINT, $2); }
+stmt: TOKEN_PRINT expr[E] { 
+    printf("found PRINT"); 
+    $$ = newStmt(sPRINT, $E); }
   ;
 
 expr

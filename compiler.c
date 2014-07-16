@@ -8,11 +8,11 @@
 #include "vm.h"
 #include <stdio.h>
  
-int yyparse(SExpression **expression, yyscan_t scanner);
+int yyparse(SStatements **stmts, yyscan_t scanner);
  
-SExpression *getAST(const char *expr)
+SStatements *getAST(const char *expr)
 {
-    SExpression *expression;
+    SStatements *stmts;
     yyscan_t scanner;
     YY_BUFFER_STATE state;
  
@@ -23,7 +23,7 @@ SExpression *getAST(const char *expr)
  
     state = yy_scan_string(expr, scanner);
  
-    if (yyparse(&expression, scanner)) {
+    if (yyparse(&stmts, scanner)) {
         // error parsing
         return NULL;
     }
@@ -32,52 +32,75 @@ SExpression *getAST(const char *expr)
  
     yylex_destroy(scanner);
  
-    return expression;
+    return stmts;
 }
- 
+
 int evaluate(SExpression *e, FILE *out)
 {
-    unsigned char instr;
+  unsigned char instr;
 
-    switch (e->type) {
-        case eVALUE:
-            instr = INST_LITERAL;
-            fwrite(&instr, sizeof(instr), 1, out);
-            instr = (unsigned char)e->value;
-            fwrite(&instr, sizeof(instr), 1, out);
-          // TODO: write an Object here?
-          //printf("LITERAL %d\n", e->value);
-            return e->value;
-        case eMULTIPLY:
-            instr = INST_MUL;
-            fwrite(&instr, sizeof(instr), 1, out);
-            return evaluate(e->left, out) * evaluate(e->right, out);
-        case ePLUS:
-            instr = INST_ADD;
-            fwrite(&instr, sizeof(instr), 1, out);
-            return evaluate(e->left, out) + evaluate(e->right, out);
-        default:
-            // shouldn't be here
-            return 0;
-    }
+  switch (e->type) {
+    case eVALUE:
+        instr = INST_LITERAL;
+        fwrite(&instr, sizeof(instr), 1, out);
+        instr = (unsigned char)e->value;
+        fwrite(&instr, sizeof(instr), 1, out);
+      // TODO: write an Object here?
+      //printf("LITERAL %d\n", e->value);
+        return e->value;
+    case eMULTIPLY:
+        instr = INST_MUL;
+        fwrite(&instr, sizeof(instr), 1, out);
+        return evaluate(e->left, out) * evaluate(e->right, out);
+    case ePLUS:
+        instr = INST_ADD;
+        fwrite(&instr, sizeof(instr), 1, out);
+        return evaluate(e->left, out) + evaluate(e->right, out);
+    default:
+        // shouldn't be here
+        return 0;
+  }
+}
+
+int evaluateStmt(SStatement *s, FILE *out) {
+  unsigned char instr;
+  switch (s->type) {
+    case sPRINT:
+      instr = INST_IO;
+      evaluate(s->expr, out);
+      //fwrite(&instr, sizeof(instr), 1, out);
+  }
+
+  return 0;
+}
+ 
+int evaluateStmts(SStatements *ss, FILE *out) {
+  if (ss == NULL) {
+    printf("evaluateStmts - ss is NULL\n");
+    return 0;
+  }
+
+  for (SStatement *s = ss->head; s; s = s->next) {
+    return evaluateStmt(s, out);
+  }
 }
  
 int main(void)
 {
     FILE *outf;
-    SExpression *e = NULL;
+    SStatements *e = NULL;
     char test[]="PRINT 4 + 2*10 + 3*( 5 + 1 )";
     int result = 0;
  
     e = getAST(test);
  
     outf = fopen("out.bin", "wb"); // TODO: from cmd line
-    result = evaluate(e, outf);
+    result = evaluateStmts(e, outf);
     fclose(outf);
  
     printf("Result of '%s' is %d\n", test, result);
  
-    deleteExpression(e);
+    deleteStmts(e);
  
     return 0;
 }
