@@ -1,31 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include "vm.h"
 
 #define STACK_MAX 256
-
-typedef enum {
-  OBJ_INT,
-  OBJ_PAIR
-} ObjectType;
-
-typedef struct sObject {
-  ObjectType type;
-  unsigned char marked;
-
-  /* The next object in the linked list of heap allocated objects. */
-  struct sObject* next;
-
-  union {
-    /* OBJ_INT */
-    int value;
-
-    /* OBJ_PAIR */
-    struct {
-      struct sObject* head;
-      struct sObject* tail;
-    };
-  };
-} Object;
 
 typedef struct {
   Object* stack[STACK_MAX];
@@ -235,12 +212,6 @@ void perfTest() {
     }
   }
 }
-
-enum Instruction {
-  INST_LITERAL = 0x00,
-  INST_IO = 0x01,
-  INST_ADD = 0x02
-};
 
 void evalAdd(VM* vm) {
   Object* a = pop(vm);
