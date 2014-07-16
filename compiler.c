@@ -66,7 +66,7 @@ int main(void)
 {
     FILE *outf;
     SExpression *e = NULL;
-    char test[]=" 4 + 2*10 + 3*( 5 + 1 )";
+    char test[]="PRINT 4 + 2*10 + 3*( 5 + 1 )";
     int result = 0;
  
     e = getAST(test);

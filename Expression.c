@@ -64,3 +64,25 @@ void deleteExpression(SExpression *b)
  
     free(b);
 }
+
+SStatements *initStmts(SStatement *s) {
+    SStatements *ss = (SStatements *)malloc(sizeof(SStatements));
+    ss->head = ss->tail = s;
+    return ss;
+}
+
+void addStmt(SStatements *ss, SStatement *s) {
+  if (ss->head == NULL) {
+    ss->head = ss->tail = s;
+  } else {
+    ss->tail->next = ss->tail = s;
+  }
+}
+
+SStatement *newStmt(EStatementType type, SExpression *expr) {
+  SStatement *s = (SStatement *)malloc(sizeof(SStatement));
+  s->type = type;
+  s->expr = expr;
+  s->next = NULL;
+  return s;
+}

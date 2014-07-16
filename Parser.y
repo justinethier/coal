@@ -36,11 +36,14 @@ typedef void* yyscan_t;
 %union {
     int value;
     SExpression *expression;
+    SStatement *statement;
+    SStatements *statements;
 }
  
 %left '+' TOKEN_PLUS
 %left '*' TOKEN_MULTIPLY
  
+%token TOKEN_PRINT
 %token TOKEN_LPAREN
 %token TOKEN_RPAREN
 %token TOKEN_PLUS
@@ -48,13 +51,29 @@ typedef void* yyscan_t;
 %token <value> TOKEN_NUMBER
  
 %type <expression> expr
+%type <statement> stmt
+%type <statements> stmts
  
 %%
- 
-input
-    : expr { *expression = $1; }
+
+// See http://www.gnu.org/software/bison/manual/bison.html#Rpcalc-Rules
+//input
+//    : expr { *expression = $1; }
+input : stmts
     ;
- 
+
+// See http://stackoverflow.com/questions/1655166/using-bison-to-parse-list-of-elements
+stmts: /* empty */ { $$ = NULL; }
+  | stmts stmt { if ($1 == NULL) 
+                   $$ = initStmts($2); 
+                 else
+                   addStmt((SStatements *)$1, $2); }
+  ;
+
+//stmt: TOKEN_PRINT expr { *expression = $1; }
+stmt: TOKEN_PRINT expr { $$ = newStmt(sPRINT, $2); }
+  ;
+
 expr
     : expr[L] TOKEN_PLUS expr[R] { $$ = createOperation( ePLUS, $L, $R ); }
     | expr[L] TOKEN_MULTIPLY expr[R] { $$ = createOperation( eMULTIPLY, $L, $R ); }

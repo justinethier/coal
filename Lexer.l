@@ -22,6 +22,7 @@ LPAREN      "("
 RPAREN      ")"
 PLUS        "+"
 MULTIPLY    "*"
+PRINT       "PRINT"
  
 NUMBER      [0-9]+
 WS          [ \r\n\t]*
@@ -32,6 +33,7 @@ WS          [ \r\n\t]*
 {WS}            { /* Skip blanks. */ }
 {NUMBER}        { sscanf(yytext, "%d", &yylval->value); return TOKEN_NUMBER; }
  
+{PRINT}         { return TOKEN_PRINT; }
 {MULTIPLY}      { return TOKEN_MULTIPLY; }
 {PLUS}          { return TOKEN_PLUS; }
 {LPAREN}        { return TOKEN_LPAREN; }

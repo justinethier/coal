@@ -12,7 +12,7 @@ typedef enum tagEOperationType
 {
     eVALUE,
     eMULTIPLY,
-    ePLUS
+    ePLUS,
 } EOperationType;
  
 /**
@@ -49,4 +49,25 @@ SExpression *createOperation(EOperationType type, SExpression *left, SExpression
  */
 void deleteExpression(SExpression *b);
  
+typedef enum tagEStatementType
+{
+    sNULL
+  , sPRINT
+} EStatementType;
+
+typedef struct tagSStatement {
+  EStatementType type;  
+  SExpression *expr;
+  struct tagSStatement *next;
+} SStatement;
+
+typedef struct tagSStatements {
+  SStatement *head;
+  SStatement *tail;
+} SStatements;
+
+SStatements *initStmts(SStatement *);
+void addStmt(SStatements *ss, SStatement *s);
+SStatement *newStmt(EStatementType type, SExpression *);
+
 #endif // __EXPRESSION_H__
