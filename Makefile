@@ -9,7 +9,7 @@ OBJS = $(addsuffix .o, $(COBJ))
 clc: $(FILES)
 	$(CC) $(CFLAGS) $(FILES) -o clc
 
-vm: vm.c
+vm: vm.c vm.h
 	$(CC) $(CFLAGS) vm.c -o vm
 
 Lexer.c: Lexer.l
