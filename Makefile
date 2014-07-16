@@ -36,5 +36,5 @@ Parser.c: Parser.y Lexer.c
 
 .PHONY: clean
 clean:
-	rm -rf vm *.o *.yy.c a.out Lexer.c Lexer.h Parser.c Parser.h clc
+	rm -rf vm *.o *.yy.c a.out Lexer.c Lexer.h Parser.c Parser.h clc out.bin
 
