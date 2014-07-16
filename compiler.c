@@ -38,10 +38,13 @@ int evaluate(SExpression *e)
 {
     switch (e->type) {
         case eVALUE:
+            printf("LITERAL %d\n", e->value);
             return e->value;
         case eMULTIPLY:
+            printf("MUL \n");
             return evaluate(e->left) * evaluate(e->right);
         case ePLUS:
+            printf("ADD \n");
             return evaluate(e->left) + evaluate(e->right);
         default:
             // shouldn't be here
