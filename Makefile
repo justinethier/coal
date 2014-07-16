@@ -38,7 +38,11 @@ test: clc vm
 	./clc
 	ls -l out.bin
 
+.PHONY: tags
+tags:
+	ctags -R
+
 .PHONY: clean
 clean:
-	rm -rf vm *.o *.yy.c a.out Lexer.c Lexer.h Parser.c Parser.h clc out.bin
+	rm -rf vm *.o *.yy.c a.out Lexer.c Lexer.h Parser.c Parser.h clc out.bin tags
 
