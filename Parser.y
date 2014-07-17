@@ -67,9 +67,13 @@ stmts: /* empty */ { $$ = NULL; }
   | stmts stmt { printf("Processing stmt\n"); 
                  if ($1 == NULL) {
                    printf("initStmts\n");
+                   // TODO: not good enough to handle blocks, such as
+                   //       within a function
                    *stmts = $$ = initStmts($2); 
                  } else {
-                   $$ = addStmt((SStatements *)$1, $2); 
+                   //$$ = 
+                   printf("num statements = %d\n", numStmts($$));
+                   addStmt((SStatements *)$$, $2); 
                  } 
                }
   ;

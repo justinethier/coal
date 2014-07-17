@@ -6,13 +6,13 @@ COBJ = Lexer Parser Expression compiler
 FILES = $(addsuffix .c, $(COBJ))
 OBJS = $(addsuffix .o, $(COBJ))
 
-all: clc vm
+all: cyc cy
 
-clc: $(FILES)
-	$(CC) $(CFLAGS) $(FILES) -o clc
+cyc: $(FILES)
+	$(CC) $(CFLAGS) $(FILES) -o cyc
 
-vm: vm.c vm.h
-	$(CC) $(CFLAGS) vm.c -o vm
+cy: vm.c vm.h
+	$(CC) $(CFLAGS) vm.c -o cy
 
 Lexer.c: Lexer.l
 	flex Lexer.l
@@ -34,9 +34,9 @@ Parser.c: Parser.y Lexer.c
 ##	$(CC)  $(CFLAGS) -c lisp_lexer.yy.c -o lexer.o
 #	$(CC)  $(CFLAGS) lisp_lexer.yy.c -lfl
 
-test: clc vm
-	./clc test.src
-	./vm test.bin
+test: cyc vm
+	./cyc test.src
+	./cy test.bin
 
 .PHONY: tags
 tags:
@@ -44,5 +44,5 @@ tags:
 
 .PHONY: clean
 clean:
-	rm -rf vm *.o *.yy.c a.out Lexer.c Lexer.h Parser.c Parser.h clc *.bin tags
+	rm -rf *.o *.yy.c a.out Lexer.c Lexer.h Parser.c Parser.h *.bin tags cy cyc
 

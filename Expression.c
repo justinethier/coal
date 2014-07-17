@@ -75,10 +75,21 @@ SStatements *addStmt(SStatements *ss, SStatement *s) {
   if (ss->head == NULL) {
     ss->head = ss->tail = s;
   } else {
-    ss->tail->next = ss->tail = s;
+    ss->tail->next = s;
+    ss->tail = s;
   }
 
   return ss;
+}
+
+int numStmts(SStatements *ss) {
+  int i = 0;
+  if (ss != NULL) {
+    for (SStatement *s = ss->head; s; s = s->next) {
+      i++;
+    }
+  }
+  return i;
 }
 
 SStatement *newStmt(EStatementType type, SExpression *expr) {

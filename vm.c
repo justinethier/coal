@@ -260,6 +260,10 @@ printf("PUSH %d\n", (int) bytecode[pc + 1]);
       case INST_MUL:
         evalMul(vm);
         break;
+
+      case INST_HALT:
+        exit(0);
+        break;
     }
 
     pc++;

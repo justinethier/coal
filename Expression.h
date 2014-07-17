@@ -69,6 +69,7 @@ typedef struct tagSStatements {
 SStatements *initStmts(SStatement *);
 SStatements *addStmt(SStatements *ss, SStatement *s);
 SStatement *newStmt(EStatementType type, SExpression *);
+int numStmts(SStatements *ss);
 void deleteStmts(SStatements *ss);
 
 #endif // __EXPRESSION_H__

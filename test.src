@@ -1,2 +1,5 @@
-PRINT 4 + 2*10 + 3*( 5 + 1 )
-PRINT 1 + 2 * 3
+REM PRINT 4 + 2*10 + 3*( 5 + 1 )
+REM PRINT 1 + 2 * 3
+PRINT 1
+PRINT 2
+PRINT 3

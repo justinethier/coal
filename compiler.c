@@ -38,8 +38,7 @@ SStatements *getAST(const char *expr)
     return stmts;
 }
 
-int evaluate(SExpression *e, FILE *out)
-{
+void evaluate(SExpression *e, FILE *out) {
   unsigned char instr;
 
   switch (e->type) {
@@ -69,13 +68,13 @@ int evaluate(SExpression *e, FILE *out)
 
     default:
       // shouldn't be here
-      return 0;
+      return;
   }
 
-  return 0;
+  return;
 }
 
-int evaluateStmt(SStatement *s, FILE *out) {
+void evaluateStmt(SStatement *s, FILE *out) {
   unsigned char instr;
   switch (s->type) {
     case sPRINT:
@@ -87,17 +86,17 @@ int evaluateStmt(SStatement *s, FILE *out) {
       break;
   }
 
-  return 0;
+  return;
 }
  
-int evaluateStmts(SStatements *ss, FILE *out) {
+void evaluateStmts(SStatements *ss, FILE *out) {
   if (ss == NULL) {
     printf("evaluateStmts - ss is NULL\n");
-    return 0;
+    return;
   }
 
   for (SStatement *s = ss->head; s; s = s->next) {
-    return evaluateStmt(s, out);
+    evaluateStmt(s, out);
   }
 }
 
@@ -151,7 +150,7 @@ char *getFileContents(FILE *fp) {
 void process(FILE *input, FILE *output){
   char *src = getFileContents(input);
   SStatements *ast = getAST(src);
-  int result = evaluateStmts(ast, output);
+  evaluateStmts(ast, output);
   //printf("Result of '%s' is %d\n", test, result);
  
   deleteStmts(ast);
