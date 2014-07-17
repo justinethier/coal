@@ -41,24 +41,25 @@ int evaluate(SExpression *e, FILE *out)
 
   switch (e->type) {
     case eVALUE:
-        instr = INST_LITERAL;
-        fwrite(&instr, sizeof(instr), 1, out);
-        instr = (unsigned char)e->value;
-        fwrite(&instr, sizeof(instr), 1, out);
-      // TODO: write an Object here?
-      //printf("LITERAL %d\n", e->value);
-        return e->value;
+      printf("AST LITERAL %d\n", e->value);
+      instr = INST_LITERAL;
+      fwrite(&instr, sizeof(instr), 1, out);
+      instr = (unsigned char)e->value;
+      fwrite(&instr, sizeof(instr), 1, out);
+      return e->value;
     case eMULTIPLY:
-        instr = INST_MUL;
-        evaluate(e->left, out) * evaluate(e->right, out);
-        fwrite(&instr, sizeof(instr), 1, out);
+      printf("AST MUL\n");
+      instr = INST_MUL;
+      evaluate(e->left, out) * evaluate(e->right, out);
+      fwrite(&instr, sizeof(instr), 1, out);
     case ePLUS:
-        instr = INST_ADD;
-        evaluate(e->left, out) + evaluate(e->right, out);
-        fwrite(&instr, sizeof(instr), 1, out);
+      printf("AST ADD\n");
+      instr = INST_ADD;
+      evaluate(e->left, out) + evaluate(e->right, out);
+      fwrite(&instr, sizeof(instr), 1, out);
     default:
-        // shouldn't be here
-        return 0;
+      // shouldn't be here
+      return 0;
   }
 
   return 0;
@@ -68,6 +69,8 @@ int evaluateStmt(SStatement *s, FILE *out) {
   unsigned char instr;
   switch (s->type) {
     case sPRINT:
+      printf("AST PRINT\n");
+      instr = INST_ADD;
       instr = INST_IO;
       evaluate(s->expr, out);
       fwrite(&instr, sizeof(instr), 1, out);
@@ -91,7 +94,7 @@ int main(void)
 {
     FILE *outf;
     SStatements *e = NULL;
-    char test[]="PRINT 4 + 2";//*10 + 3*( 5 + 1 )";
+    char test[]="PRINT 4 + 2*10 ";//+ 3*( 5 + 1 )";
     int result = 0;
  
     e = getAST(test);

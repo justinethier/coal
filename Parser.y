@@ -64,25 +64,34 @@ input : stmts
 
 // See http://stackoverflow.com/questions/1655166/using-bison-to-parse-list-of-elements
 stmts: /* empty */ { $$ = NULL; }
-  | stmts stmt { printf("processing stmt"); if ($1 == NULL) {
-                   printf("initStmts");
+  | stmts stmt { printf("Processing stmt\n"); 
+                 if ($1 == NULL) {
+                   printf("initStmts\n");
                    *stmts = $$ = initStmts($2); 
                  } else {
                    $$ = addStmt((SStatements *)$1, $2); 
-                 } }
+                 } 
+               }
   ;
 
 //stmt: TOKEN_PRINT expr { *expression = $1; }
 stmt: TOKEN_PRINT expr[E] { 
-    printf("found PRINT"); 
+    printf("Found PRINT\n"); 
     $$ = newStmt(sPRINT, $E); }
   ;
 
 expr
-    : expr[L] TOKEN_PLUS expr[R] { $$ = createOperation( ePLUS, $L, $R ); }
-    | expr[L] TOKEN_MULTIPLY expr[R] { $$ = createOperation( eMULTIPLY, $L, $R ); }
+    : expr[L] TOKEN_PLUS expr[R] { 
+        $$ = createOperation( ePLUS, $L, $R ); 
+      }
+    | expr[L] TOKEN_MULTIPLY expr[R] { 
+        $$ = createOperation( eMULTIPLY, $L, $R ); 
+      }
     | TOKEN_LPAREN expr[E] TOKEN_RPAREN { $$ = $E; }
-    | TOKEN_NUMBER { $$ = createNumber($1); }
+    | TOKEN_NUMBER { 
+        printf("Found NUMBER %d\n", $1);
+        $$ = createNumber($1); 
+      }
     ;
  
 %%
