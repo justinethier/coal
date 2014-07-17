@@ -46,17 +46,24 @@ int evaluate(SExpression *e, FILE *out)
       fwrite(&instr, sizeof(instr), 1, out);
       instr = (unsigned char)e->value;
       fwrite(&instr, sizeof(instr), 1, out);
-      return e->value;
+      break;
+
     case eMULTIPLY:
       printf("AST MUL\n");
       instr = INST_MUL;
-      evaluate(e->left, out) * evaluate(e->right, out);
+      evaluate(e->left, out);
+      evaluate(e->right, out);
       fwrite(&instr, sizeof(instr), 1, out);
+      break;
+
     case ePLUS:
       printf("AST ADD\n");
       instr = INST_ADD;
-      evaluate(e->left, out) + evaluate(e->right, out);
+      evaluate(e->left, out);
+      evaluate(e->right, out);
       fwrite(&instr, sizeof(instr), 1, out);
+      break;
+
     default:
       // shouldn't be here
       return 0;
@@ -74,6 +81,7 @@ int evaluateStmt(SStatement *s, FILE *out) {
       instr = INST_IO;
       evaluate(s->expr, out);
       fwrite(&instr, sizeof(instr), 1, out);
+      break;
   }
 
   return 0;
@@ -94,7 +102,7 @@ int main(void)
 {
     FILE *outf;
     SStatements *e = NULL;
-    char test[]="PRINT 4 + 2*10 ";//+ 3*( 5 + 1 )";
+    char test[]="PRINT 4 + 2*10 + 3*( 5 + 1 )";
     int result = 0;
  
     e = getAST(test);
