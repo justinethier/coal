@@ -235,17 +235,17 @@ printf("MUL %d %d\n", a->value, b->value);
 }
 
 void eval(VM* vm, unsigned char bytecode[], int size) {
-  int i = 0;
+  int pc = 0;
   Object* acc;
 
-  while (i < size) {
-    unsigned char instruction = bytecode[i];
+  while (pc < size) {
+    unsigned char instruction = bytecode[pc];
 
     printf("DEBUG OP: %d\n", instruction);
     switch (instruction) {
       case INST_LITERAL:
-printf("PUSH %d\n", (int) bytecode[i + 1]);
-        pushInt(vm, (int) bytecode[++i]);
+printf("PUSH %d\n", (int) bytecode[pc + 1]);
+        pushInt(vm, (int) bytecode[++pc]);
         break;
 
       case INST_IO:
@@ -262,12 +262,10 @@ printf("PUSH %d\n", (int) bytecode[i + 1]);
         break;
     }
 
-    i++;
+    pc++;
   }
 } 
 
-// TODO: bytecode will change too much for this test to be stable.
-// better to create a simple compiler and move the test there
 int jaetest(){
   FILE *bin = fopen("out.bin", "rb");
   unsigned char bytecode[1024]; // TODO: use a different data structure
@@ -275,6 +273,7 @@ int jaetest(){
 
   int num = fread(bytecode, sizeof(unsigned char), 1024, bin);
   fclose(bin);
+printf("DEBUG, num = %d\n", num);
   eval(vm, bytecode, num); 
 
 //  num = 1;
