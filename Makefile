@@ -35,8 +35,8 @@ Parser.c: Parser.y Lexer.c
 #	$(CC)  $(CFLAGS) lisp_lexer.yy.c -lfl
 
 test: clc vm
-	./clc
-	./vm
+	./clc test.src
+	./vm test.bin
 
 .PHONY: tags
 tags:
@@ -44,5 +44,5 @@ tags:
 
 .PHONY: clean
 clean:
-	rm -rf vm *.o *.yy.c a.out Lexer.c Lexer.h Parser.c Parser.h clc out.bin tags
+	rm -rf vm *.o *.yy.c a.out Lexer.c Lexer.h Parser.c Parser.h clc *.bin tags
 

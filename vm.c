@@ -266,19 +266,15 @@ printf("PUSH %d\n", (int) bytecode[pc + 1]);
   }
 } 
 
-int jaetest(){
-  FILE *bin = fopen("out.bin", "rb");
-  unsigned char bytecode[1024]; // TODO: use a different data structure
+int run(const char *file){
+  FILE *bin = fopen(file, "rb");
+  unsigned char bytecode[1024]; // TODO: use utility function from compiler
   VM* vm = newVM();
 
   int num = fread(bytecode, sizeof(unsigned char), 1024, bin);
   fclose(bin);
 printf("DEBUG, num = %d\n", num);
   eval(vm, bytecode, num); 
-
-//  num = 1;
-//  unsigned char bytecode2[] = {INST_IO};
-//  eval(vm, bytecode2, num); 
 }
 
 int main(int argc, const char * argv[]) {
@@ -291,6 +287,9 @@ int main(int argc, const char * argv[]) {
 
   perfTest();
 */
-  jaetest();
+  if (argc > 1) {
+    run(argv[1]);
+  }
+
   return 0;
 }

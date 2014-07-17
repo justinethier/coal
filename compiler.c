@@ -4,9 +4,12 @@
 #include "Expression.h"
 #include "Parser.h"
 #include "Lexer.h"
- 
 #include "vm.h"
+#include <getopt.h>
 #include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <unistd.h>
  
 int yyparse(SStatements **stmts, yyscan_t scanner);
  
@@ -97,23 +100,94 @@ int evaluateStmts(SStatements *ss, FILE *out) {
     return evaluateStmt(s, out);
   }
 }
+
+/**
+ * Allocate a new filename with the given extension,
+ * or NULL if an error occurs
+ */
+char *fnameWithExt(const char *fname, const char *ext){
+  int len = strlen(fname);
+
+  if (len > 4 && fname[len - 4] == '.'){
+    char *buf = malloc(len+1); 
+    strncpy(buf, fname, len+1);
+    strncpy(buf + (len - 3), ext, 3);
+    return buf;
+  }
+
+  return NULL;
+}
+
+char *getFileContents(FILE *fp) {
+  char *source = NULL;
+  if (fp != NULL) {
+      /* Go to the end of the file. */
+      if (fseek(fp, 0L, SEEK_END) == 0) {
+          /* Get the size of the file. */
+          long bufsize = ftell(fp);
+          if (bufsize == -1) { /* Error */ }
+  
+          /* Allocate our buffer to that size. */
+          source = malloc(sizeof(char) * (bufsize + 1));
+  
+          /* Go back to the start of the file. */
+          if (fseek(fp, 0L, SEEK_SET) != 0) { /* Error */ }
+  
+          /* Read the entire file into memory. */
+          size_t newLen = fread(source, sizeof(char), bufsize, fp);
+          if (newLen == 0) {
+              fputs("Error reading file", stderr);
+          } else {
+              source[++newLen] = '\0'; /* Just to be safe. */
+          }
+      }
+      //fclose(fp);
+  }
+  
+  //free(source); /* Don't forget to call free() later! */
+  return(source);
+}
+
+void process(FILE *input, FILE *output){
+  char *src = getFileContents(input);
+  SStatements *ast = getAST(src);
+  int result = evaluateStmts(ast, output);
+  //printf("Result of '%s' is %d\n", test, result);
  
-int main(void)
-{
-    FILE *outf;
-    SStatements *e = NULL;
-    char test[]="PRINT 4 + 2*10 + 3*( 5 + 1 )";
-    int result = 0;
- 
-    e = getAST(test);
- 
-    outf = fopen("out.bin", "wb"); // TODO: from cmd line
-    result = evaluateStmts(e, outf);
-    fclose(outf);
- 
-    printf("Result of '%s' is %d\n", test, result);
- 
-    deleteStmts(e);
- 
-    return 0;
+  deleteStmts(ast);
+  free(src);
+}
+
+//TODO: command line args to
+// - specify code from cmd line (for convenience)
+// - specify input (file or stdin -)
+// - output filename (or just default to input.bin)
+int main(int argc, char **argv) {
+  int option = -1;
+  FILE *input = NULL, *output = NULL;
+
+  while ((option = getopt(argc, argv, "")) != -1) {
+    switch(option) {
+      default:
+        break;
+    }
+  }
+
+  if (argv[optind] != NULL) {
+    char *outFname = fnameWithExt(argv[optind], "bin");
+    if (outFname) {
+      printf("%s\n", outFname);
+
+      input = fopen(argv[optind], "r");
+      output = fopen(outFname, "wb");
+    }
+  }
+
+  if (input && output){
+    process(input, output);
+    fclose(input);
+    fclose(output);
+  }
+
+  return 0;
 }
