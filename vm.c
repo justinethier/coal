@@ -221,6 +221,7 @@ void evalAdd(VM* vm) {
   Object* b = pop(vm);
   assert(a->type == OBJ_INT, "a is not an integer");
   assert(b->type == OBJ_INT, "b is not an integer");
+printf("ADD %d %d\n", a->value, b->value);
   pushInt(vm, a->value + b->value);
 }
 
@@ -229,6 +230,7 @@ void evalMul(VM* vm) {
   Object* b = pop(vm);
   assert(a->type == OBJ_INT, "a is not an integer");
   assert(b->type == OBJ_INT, "b is not an integer");
+printf("MUL %d %d\n", a->value, b->value);
   pushInt(vm, a->value * b->value);
 }
 
@@ -242,6 +244,7 @@ void eval(VM* vm, unsigned char bytecode[], int size) {
     printf("DEBUG OP: %d\n", instruction);
     switch (instruction) {
       case INST_LITERAL:
+printf("PUSH %d\n", (int) bytecode[i + 1]);
         pushInt(vm, (int) bytecode[++i]);
         break;
 
@@ -269,15 +272,18 @@ int jaetest(){
   FILE *bin = fopen("out.bin", "rb");
   unsigned char bytecode[1024]; // TODO: use a different data structure
   VM* vm = newVM();
-  //unsigned char bytecode[] = {INST_LITERAL, 1, INST_LITERAL, 2, INST_ADD, INST_IO};
 
   int num = fread(bytecode, sizeof(unsigned char), 1024, bin);
   fclose(bin);
-printf("DEBUG num = %d\n", num);
   eval(vm, bytecode, num); 
+
+//  num = 1;
+//  unsigned char bytecode2[] = {INST_IO};
+//  eval(vm, bytecode2, num); 
 }
 
 int main(int argc, const char * argv[]) {
+/*
 // TODO: wrap in a while(1) and see if memory usage is constant
   test1();
   test2();
@@ -285,7 +291,7 @@ int main(int argc, const char * argv[]) {
   test4();
 
   perfTest();
-
+*/
   jaetest();
   return 0;
 }

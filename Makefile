@@ -36,7 +36,7 @@ Parser.c: Parser.y Lexer.c
 
 test: clc vm
 	./clc
-	ls -l out.bin
+	./vm
 
 .PHONY: tags
 tags:

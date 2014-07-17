@@ -50,16 +50,18 @@ int evaluate(SExpression *e, FILE *out)
         return e->value;
     case eMULTIPLY:
         instr = INST_MUL;
+        evaluate(e->left, out) * evaluate(e->right, out);
         fwrite(&instr, sizeof(instr), 1, out);
-        return evaluate(e->left, out) * evaluate(e->right, out);
     case ePLUS:
         instr = INST_ADD;
+        evaluate(e->left, out) + evaluate(e->right, out);
         fwrite(&instr, sizeof(instr), 1, out);
-        return evaluate(e->left, out) + evaluate(e->right, out);
     default:
         // shouldn't be here
         return 0;
   }
+
+  return 0;
 }
 
 int evaluateStmt(SStatement *s, FILE *out) {
