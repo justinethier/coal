@@ -3,16 +3,23 @@ CSTD = -std=c99
 CFLAGS = $(CSTD) -g
 
 COBJ = Lexer Parser Expression compiler
-FILES = $(addsuffix .c, $(COBJ))
-OBJS = $(addsuffix .o, $(COBJ))
+CFILES = $(addsuffix .c, $(COBJ))
+COBJS = $(addsuffix .o, $(COBJ))
 
-all: cyc cy
+VMOBJ = vm
+VMFILES = $(addsuffix .c, $(VMOBJ))
+VMOBJS = $(addsuffix .o, $(VMOBJ))
 
-cyc: $(FILES)
-	$(CC) $(CFLAGS) $(FILES) -o cyc
+COMOBJ = util
+COMFILES = $(addsuffix .c, $(COMOBJ))
+COMOBJS = $(addsuffix .o,  $(COMOBJ))
 
-cy: vm.c vm.h
-	$(CC) $(CFLAGS) vm.c -o cy
+
+.PHONY: all
+all: $(CFILES) $(VMFILES) $(COMFILES)
+	$(MAKE) $(COBJS) $(VMOBJS) $(COMOBJS)
+	$(CC) $(CFLAGS) -o cyc $(COBJS) $(COMOBJS) $(LIBS)
+	$(CC) $(CFLAGS) -o cy $(VMOBJS) $(COMOBJS) $(LIBS)
 
 Lexer.c: Lexer.l
 	flex Lexer.l
@@ -34,7 +41,7 @@ Parser.c: Parser.y Lexer.c
 ##	$(CC)  $(CFLAGS) -c lisp_lexer.yy.c -o lexer.o
 #	$(CC)  $(CFLAGS) lisp_lexer.yy.c -lfl
 
-test: cyc vm
+test: all
 	./cyc test.src
 	./cy test.bin
 

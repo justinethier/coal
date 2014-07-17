@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "vm.h"
+#include "util.h"
 
 #define STACK_MAX 256
 
@@ -271,14 +272,13 @@ printf("PUSH %d\n", (int) bytecode[pc + 1]);
 } 
 
 int run(const char *file){
-  FILE *bin = fopen(file, "rb");
-  unsigned char bytecode[1024]; // TODO: use utility function from compiler
+  long num = 0;
+  unsigned char *bytecode = getFileContents(file, &num);
   VM* vm = newVM();
-
-  int num = fread(bytecode, sizeof(unsigned char), 1024, bin);
-  fclose(bin);
-printf("DEBUG, num = %d\n", num);
-  eval(vm, bytecode, num); 
+  #if DEBUG
+  printf("Running VM, num = %ld\n", num);
+  #endif
+  eval(vm, bytecode, (int)num); 
 }
 
 int main(int argc, const char * argv[]) {

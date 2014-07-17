@@ -5,6 +5,7 @@
 #include "Parser.h"
 #include "Lexer.h"
 #include "vm.h"
+#include "util.h"
 #include <getopt.h>
 #include <stdio.h>
 #include <string.h>
@@ -100,59 +101,10 @@ void evaluateStmts(SStatements *ss, FILE *out) {
   }
 }
 
-/**
- * Allocate a new filename with the given extension,
- * or NULL if an error occurs
- */
-char *fnameWithExt(const char *fname, const char *ext){
-  int len = strlen(fname);
-
-  if (len > 4 && fname[len - 4] == '.'){
-    char *buf = malloc(len+1); 
-    strncpy(buf, fname, len+1);
-    strncpy(buf + (len - 3), ext, 3);
-    return buf;
-  }
-
-  return NULL;
-}
-
-char *getFileContents(FILE *fp) {
-  char *source = NULL;
-  if (fp != NULL) {
-      /* Go to the end of the file. */
-      if (fseek(fp, 0L, SEEK_END) == 0) {
-          /* Get the size of the file. */
-          long bufsize = ftell(fp);
-          if (bufsize == -1) { /* Error */ }
-  
-          /* Allocate our buffer to that size. */
-          source = malloc(sizeof(char) * (bufsize + 1));
-  
-          /* Go back to the start of the file. */
-          if (fseek(fp, 0L, SEEK_SET) != 0) { /* Error */ }
-  
-          /* Read the entire file into memory. */
-          size_t newLen = fread(source, sizeof(char), bufsize, fp);
-          if (newLen == 0) {
-              fputs("Error reading file", stderr);
-          } else {
-              source[++newLen] = '\0'; /* Just to be safe. */
-          }
-      }
-      //fclose(fp);
-  }
-  
-  //free(source); /* Don't forget to call free() later! */
-  return(source);
-}
-
-void process(FILE *input, FILE *output){
-  char *src = getFileContents(input);
+void process(const char *inputF, FILE *output){
+  char *src = getFileContents(inputF, NULL);
   SStatements *ast = getAST(src);
   evaluateStmts(ast, output);
-  //printf("Result of '%s' is %d\n", test, result);
- 
   deleteStmts(ast);
   free(src);
 }
@@ -163,7 +115,8 @@ void process(FILE *input, FILE *output){
 // - output filename (or just default to input.bin)
 int main(int argc, char **argv) {
   int option = -1;
-  FILE *input = NULL, *output = NULL;
+  char *inputF = NULL;
+  FILE *output = NULL;
 
   while ((option = getopt(argc, argv, "")) != -1) {
     switch(option) {
@@ -177,14 +130,13 @@ int main(int argc, char **argv) {
     if (outFname) {
       printf("%s\n", outFname);
 
-      input = fopen(argv[optind], "r");
+      inputF = argv[optind];
       output = fopen(outFname, "wb");
     }
   }
 
-  if (input && output){
-    process(input, output);
-    fclose(input);
+  if (inputF && output){
+    process(inputF, output);
     fclose(output);
   }
 
