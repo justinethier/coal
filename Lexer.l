@@ -29,7 +29,7 @@ WS          [ \r\n\t]*
  
 %%
  
-";"[^\r\n]*     { /* skip comments */ }
+"REM"[^\r\n]*     { /* skip comments */ }
 {WS}            { /* Skip blanks. */ }
 {NUMBER}        { sscanf(yytext, "%d", &yylval->value); return TOKEN_NUMBER; }
  
