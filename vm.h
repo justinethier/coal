@@ -35,7 +35,7 @@ enum Instruction {
     INST_HALT               = 0xFF
   , INST_LITERAL            = 0x00 // EG: LOAD literal
   , INST_LOAD       = 0x10 // EG: LOAD from memory, push to stack
-// TODO: STORE
+  , INST_STORE      = 0x11
 // TODO: COPY (???)
 // can variables be stored in the same stack, at the
 // "front" of the function? each variable then becomes a

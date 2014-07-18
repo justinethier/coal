@@ -236,7 +236,7 @@ printf("MUL %d %d\n", a->value, b->value);
 }
 
 void eval(VM* vm, unsigned char bytecode[], int size) {
-  int pc = 0;
+  int pc = 0, addr = 0;
   Object* acc;
 
   while (pc < size) {
@@ -247,6 +247,23 @@ void eval(VM* vm, unsigned char bytecode[], int size) {
       case INST_LITERAL:
 printf("PUSH %d\n", (int) bytecode[pc + 1]);
         pushInt(vm, (int) bytecode[++pc]);
+        break;
+
+      case INST_LOAD:
+        addr = (int) bytecode[++pc];
+        // TODO: to support functions, would need to
+        // add an activation frame offset to addr,
+        // or change stack to use activation frames
+        // on the stack for each function call.
+        // For now, this just assumes all top-level
+        // variables are stored at the top of the stack.
+        push(vm, vm->stack[addr]);
+        break;
+
+      case INST_STORE:
+        addr = (int) bytecode[++pc];
+        acc = pop(vm);
+        vm->stack[addr] = acc; // TODO: error checking
         break;
 
       case INST_IO:
