@@ -296,6 +296,7 @@ int run(const char *file){
   printf("Running VM, num = %ld\n", num);
   #endif
   eval(vm, bytecode, (int)num); 
+  free(bytecode);
 }
 
 int main(int argc, const char * argv[]) {

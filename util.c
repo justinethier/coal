@@ -30,7 +30,8 @@ char *getFileContents(const char *filename, long *outpSize) {
           if (newLen == 0) {
               fputs("Error reading file", stderr);
           } else {
-              source[++newLen] = '\0'; /* Just to be safe. */
+// Not so safe, can cause segfault in Linux
+//              source[++newLen] = '\0'; /* Just to be safe. */
           }
 
           // Let caller know the size of the buffer

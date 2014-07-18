@@ -133,6 +133,7 @@ int main(int argc, char **argv) {
       inputF = argv[optind];
       output = fopen(outFname, "wb");
     }
+    free(outFname);
   }
 
   if (inputF && output){
