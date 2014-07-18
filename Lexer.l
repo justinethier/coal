@@ -23,7 +23,10 @@ RPAREN      ")"
 PLUS        "+"
 MULTIPLY    "*"
 PRINT       "PRINT"
+LET         "LET"
  
+DIGIT       [0-9]
+LETTER      [a-zA-Z_]
 NUMBER      [0-9]+
 WS          [ \r\n\t]*
  
@@ -33,7 +36,11 @@ WS          [ \r\n\t]*
 {WS}            { /* Skip blanks. */ }
 {NUMBER}        { sscanf(yytext, "%d", &yylval->value); return TOKEN_NUMBER; }
  
+{LET}           { return TOKEN_LET; }
 {PRINT}         { return TOKEN_PRINT; }
+{LETTER}({LETTER}|{DIGIT})*   { return TOKEN_IDENTIFIER; }
+
+"="             { return TOKEN_EQUAL; }
 {MULTIPLY}      { return TOKEN_MULTIPLY; }
 {PLUS}          { return TOKEN_PLUS; }
 {LPAREN}        { return TOKEN_LPAREN; }

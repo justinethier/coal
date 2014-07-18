@@ -35,6 +35,7 @@ typedef void* yyscan_t;
  
 %union {
     int value;
+    char *ident;
     SExpression *expression;
     SStatement *statement;
     SStatements *statements;
@@ -43,12 +44,15 @@ typedef void* yyscan_t;
 %left '+' TOKEN_PLUS
 %left '*' TOKEN_MULTIPLY
  
+%token TOKEN_LET
 %token TOKEN_PRINT
 %token TOKEN_LPAREN
 %token TOKEN_RPAREN
 %token TOKEN_PLUS
 %token TOKEN_MULTIPLY
+%token TOKEN_EQUAL
 %token <value> TOKEN_NUMBER
+%token <ident> TOKEN_IDENTIFIER
  
 %type <expression> expr
 %type <statement> stmt
@@ -79,9 +83,14 @@ stmts: /* empty */ { $$ = NULL; }
   ;
 
 //stmt: TOKEN_PRINT expr { *expression = $1; }
-stmt: TOKEN_PRINT expr[E] { 
-    printf("Found PRINT\n"); 
+stmt
+  : TOKEN_PRINT expr[E] { 
+    printf("PRINT\n"); 
     $$ = newStmt(sPRINT, $E); }
+  | TOKEN_LET TOKEN_IDENTIFIER TOKEN_EQUAL expr[E] {
+    printf("LET %s\n", $2);
+    //$$ = newStmt(sLET, $E, $2);
+    }
   ;
 
 expr
@@ -93,7 +102,7 @@ expr
       }
     | TOKEN_LPAREN expr[E] TOKEN_RPAREN { $$ = $E; }
     | TOKEN_NUMBER { 
-        printf("Found NUMBER %d\n", $1);
+        printf("NUMBER %d\n", $1);
         $$ = createNumber($1); 
       }
     ;
