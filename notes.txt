@@ -1,0 +1,6 @@
+From http://shape-of-code.coding-guidelines.com/2009/09/17/register-vs-stack-based-vms/
+For a stack architecture to be an effective solution two conditions need to be met:
+
+1) The generated code has to ensure that the top of stack is kept in sync with where the next instruction expects it to be. For instance, on its return a function cannot leave stuff lying around on the stack like it can leave values in registers (whose contents can simply be overwritten).
+2) Instruction execution needs to be generally free of state, so an add-two-integers instruction should not have to consult some state variable to find out the size of integers being added. When the value of such state variables have to be saved and restored around function calls they effectively become VM registers.
+
