@@ -53,6 +53,7 @@ typedef enum tagEStatementType
 {
     sNULL
   , sPRINT
+  , sLET
 } EStatementType;
 
 typedef struct tagSStatement {

@@ -7,6 +7,7 @@
  
 #include "Expression.h"
 #include "Parser.h"
+#include "util.h"
  
 #include <stdio.h>
  
@@ -38,7 +39,7 @@ WS          [ \r\n\t]*
  
 {LET}           { return TOKEN_LET; }
 {PRINT}         { return TOKEN_PRINT; }
-{LETTER}({LETTER}|{DIGIT})*   { return TOKEN_IDENTIFIER; }
+{LETTER}({LETTER}|{DIGIT})*   { yylval->ident = _strdup(yytext); return TOKEN_IDENTIFIER; }
 
 "="             { return TOKEN_EQUAL; }
 {MULTIPLY}      { return TOKEN_MULTIPLY; }

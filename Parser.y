@@ -87,9 +87,9 @@ stmt
   : TOKEN_PRINT expr[E] { 
     printf("PRINT\n"); 
     $$ = newStmt(sPRINT, $E); }
-  | TOKEN_LET TOKEN_IDENTIFIER TOKEN_EQUAL expr[E] {
-    printf("LET %s\n", $2);
-    //$$ = newStmt(sLET, $E, $2);
+  | TOKEN_LET TOKEN_IDENTIFIER[I] TOKEN_EQUAL expr[E] {
+    printf("LET %s\n", $I);
+    $$ = newStmt(sLET, $E);
     }
   ;
 

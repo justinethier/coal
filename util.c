@@ -63,3 +63,10 @@ char *fnameWithExt(const char *fname, const char *ext){
   return NULL;
 }
 
+char *_strdup (const char *s) {
+    char *d = malloc (strlen (s) + 1);   // Space for length plus nul
+    if (d == NULL) return NULL;          // No memory
+    strcpy (d,s);                        // Copy the characters
+    return d;                            // Return the new string
+}
+
