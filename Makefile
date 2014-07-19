@@ -2,7 +2,7 @@ CC = gcc
 CSTD = -std=c99
 CFLAGS = $(CSTD) -g
 
-COBJ = Lexer Parser Expression compiler strmap
+COBJ = Lexer Parser Expression compiler hashtbl
 CFILES = $(addsuffix .c, $(COBJ))
 COBJS = $(addsuffix .o, $(COBJ))
 
