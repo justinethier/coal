@@ -88,6 +88,15 @@ stmt
     printf("PRINT\n"); 
     $$ = newStmt(sPRINT, $E); }
   | TOKEN_LET TOKEN_IDENTIFIER[I] TOKEN_EQUAL expr[E] {
+    /*
+    TODO: how to support this?
+
+    need a symbol table to detect unreferenced vars, at a minimum.
+    - but how to handle nested scopes (top lvl, function called over top lvl, etc)?
+    
+    how to reference variables at a "lower" activation frame? EG, if I am in a function,
+    how do I reference a top-level variable???
+    */
     printf("LET %s\n", $I);
     $$ = newStmt(sLET, $E);
     }
