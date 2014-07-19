@@ -4,6 +4,7 @@
 #include "Expression.h"
 #include "Parser.h"
 #include "Lexer.h"
+#include "hashtbl.h"
 #include "vm.h"
 #include "util.h"
 #include <getopt.h>
@@ -117,6 +118,18 @@ int main(int argc, char **argv) {
   int option = -1;
   char *inputF = NULL;
   FILE *output = NULL;
+
+char key[] = "key";
+char testStr[] = "my test string";
+struct nlist **ht = htinit();
+if (htlookup(ht, "test")) printf("found test in ht\n");
+//htput(ht, key, NULL);
+htput(ht, key, testStr);
+if (htlookup(ht, key)) printf("found test in ht\n");
+struct nlist *htnode = htlookup(ht, key);
+if (htnode) printf("htnode = %s\n", htnode->defn);
+
+
 
   while ((option = getopt(argc, argv, "")) != -1) {
     switch(option) {

@@ -3,15 +3,26 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-struct nlist { /* table entry: */
-    struct nlist *next; /* next entry in chain */
-    char *name; /* defined name */
-    char *defn; /* replacement text */
-};
+#include "hashtbl.h"
 
 #define HASHSIZE 101
-static struct nlist *hashtab[HASHSIZE]; /* pointer table */
+//static struct nlist *hashtab[HASHSIZE]; /* pointer table */
+
+struct nlist **htinit() 
+{
+    TODO:
+    return (struct nlist **)calloc(HASHSIZE * sizeof(struct nlist *));
+//    struct nlist **rv = (struct nlist **)malloc(sizeof(struct nlist **));
+//    rv = &ht;
+//
+//    return rv;
+//    return hashtab;
+}
+void htfree(struct nlist *ht)
+{
+    // JAE TODO: free table contents
+    free(ht);
+}
 
 /* hash: form hash value for string s */
 unsigned hash(char *s)
@@ -23,7 +34,7 @@ unsigned hash(char *s)
 }
 
 /* lookup: look for s in hashtab */
-struct nlist *lookup(char *s)
+struct nlist *htlookup(struct nlist **hashtab, char *s)
 {
     struct nlist *np;
     for (np = hashtab[hash(s)]; np != NULL; np = np->next)
@@ -33,12 +44,12 @@ struct nlist *lookup(char *s)
 }
 
 char *strdup(char *);
-/* install: put (name, defn) in hashtab */
-struct nlist *install(char *name, char *defn)
+/* put: put (name, defn) in hashtab */
+struct nlist *htput(struct nlist **hashtab, char *name, char *defn)
 {
     struct nlist *np;
     unsigned hashval;
-    if ((np = lookup(name)) == NULL) { /* not found */
+    if ((np = htlookup(hashtab, name)) == NULL) { /* not found */
         np = (struct nlist *) malloc(sizeof(*np));
         if (np == NULL || (np->name = strdup(name)) == NULL)
           return NULL;
