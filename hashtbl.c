@@ -10,19 +10,15 @@
 
 struct nlist **htinit() 
 {
-    TODO:
-    return (struct nlist **)calloc(HASHSIZE * sizeof(struct nlist *));
-//    struct nlist **rv = (struct nlist **)malloc(sizeof(struct nlist **));
-//    rv = &ht;
-//
-//    return rv;
-//    return hashtab;
+    return (struct nlist **)calloc(HASHSIZE, sizeof(struct nlist *));
 }
-void htfree(struct nlist *ht)
+void htfree(struct nlist **ht)
 {
-    // JAE TODO: free table contents
+    // JAE TODO: is this good enough?
     free(ht);
 }
+
+// TODO: hforeach()
 
 /* hash: form hash value for string s */
 unsigned hash(char *s)

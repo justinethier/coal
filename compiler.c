@@ -40,7 +40,7 @@ SStatements *getAST(const char *expr)
     return stmts;
 }
 
-void evaluate(SExpression *e, FILE *out) {
+void evaluate(SExpression *e, hashtbl *symTbl, FILE *out) {
   unsigned char instr;
 
   switch (e->type) {
@@ -55,16 +55,16 @@ void evaluate(SExpression *e, FILE *out) {
     case eMULTIPLY:
       printf("AST MUL\n");
       instr = INST_MUL;
-      evaluate(e->left, out);
-      evaluate(e->right, out);
+      evaluate(e->left, symTbl, out);
+      evaluate(e->right, symTbl, out);
       fwrite(&instr, sizeof(instr), 1, out);
       break;
 
     case ePLUS:
       printf("AST ADD\n");
       instr = INST_ADD;
-      evaluate(e->left, out);
-      evaluate(e->right, out);
+      evaluate(e->left, symTbl, out);
+      evaluate(e->right, symTbl, out);
       fwrite(&instr, sizeof(instr), 1, out);
       break;
 
@@ -76,38 +76,44 @@ void evaluate(SExpression *e, FILE *out) {
   return;
 }
 
-void evaluateStmt(SStatement *s, FILE *out) {
+void evaluateStmt(SStatement *s, hashtbl *symTbl, FILE *out) {
   unsigned char instr;
   switch (s->type) {
     case sPRINT:
       printf("AST PRINT\n");
       instr = INST_ADD;
       instr = INST_IO;
-      evaluate(s->expr, out);
+      evaluate(s->expr, symTbl, out);
       fwrite(&instr, sizeof(instr), 1, out);
+      break;
+
+    case sLET:
+      printf("AST LET\n");
       break;
   }
 
   return;
 }
  
-void evaluateStmts(SStatements *ss, FILE *out) {
+void evaluateStmts(SStatements *ss, hashtbl *symTbl, FILE *out) {
   if (ss == NULL) {
     printf("evaluateStmts - ss is NULL\n");
     return;
   }
 
   for (SStatement *s = ss->head; s; s = s->next) {
-    evaluateStmt(s, out);
+    evaluateStmt(s, symTbl, out);
   }
 }
 
 void process(const char *inputF, FILE *output){
+  hashtbl *symTbl = htinit();
   char *src = getFileContents(inputF, NULL);
   SStatements *ast = getAST(src);
-  evaluateStmts(ast, output);
+  evaluateStmts(ast, symTbl, output);
   deleteStmts(ast);
   free(src);
+  htfree(symTbl);
 }
 
 //TODO: command line args to
@@ -119,17 +125,16 @@ int main(int argc, char **argv) {
   char *inputF = NULL;
   FILE *output = NULL;
 
-char key[] = "key";
-char testStr[] = "my test string";
-struct nlist **ht = htinit();
-if (htlookup(ht, "test")) printf("found test in ht\n");
-//htput(ht, key, NULL);
-htput(ht, key, testStr);
-if (htlookup(ht, key)) printf("found test in ht\n");
-struct nlist *htnode = htlookup(ht, key);
-if (htnode) printf("htnode = %s\n", htnode->defn);
-
-
+//char key[] = "key";
+//char testStr[] = "my test string";
+//struct nlist **ht = htinit();
+//if (htlookup(ht, "test")) printf("found test in ht\n");
+////htput(ht, key, NULL);
+//htput(ht, key, testStr);
+//if (htlookup(ht, key)) printf("found test in ht\n");
+//struct nlist *htnode = htlookup(ht, key);
+//if (htnode) printf("htnode = %s\n", htnode->defn);
+//htfree(ht);
 
   while ((option = getopt(argc, argv, "")) != -1) {
     switch(option) {
