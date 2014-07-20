@@ -99,6 +99,7 @@ stmt
     */
     printf("LET %s\n", $I);
     $$ = newStmt(sLET, $E);
+    $$->identifier = $I;
     }
   ;
 

@@ -81,14 +81,19 @@ void evaluateStmt(SStatement *s, hashtbl *symTbl, FILE *out) {
   switch (s->type) {
     case sPRINT:
       printf("AST PRINT\n");
-      instr = INST_ADD;
       instr = INST_IO;
       evaluate(s->expr, symTbl, out);
       fwrite(&instr, sizeof(instr), 1, out);
       break;
 
     case sLET:
-      printf("AST LET\n");
+      printf("AST LET %s\n", s->identifier);
+      htput(symTbl, s->identifier, s->identifier);
+      instr = INST_STORE;
+      // TODO: need to compute index into activation frame, and write it here
+      // TODO: do we need to make a first pass over AST for variables?
+      evaluate(s->expr, symTbl, out);
+      fwrite(&instr, sizeof(instr), 1, out);
       break;
   }
 

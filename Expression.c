@@ -96,6 +96,7 @@ SStatement *newStmt(EStatementType type, SExpression *expr) {
   SStatement *s = (SStatement *)malloc(sizeof(SStatement));
   s->type = type;
   s->expr = expr;
+  s->identifier = NULL;
   s->next = NULL;
   return s;
 }

@@ -59,6 +59,7 @@ typedef enum tagEStatementType
 typedef struct tagSStatement {
   EStatementType type;  
   SExpression *expr;
+  char *identifier;
   struct tagSStatement *next;
 } SStatement;
 
