@@ -6,8 +6,28 @@
 #define STACK_MAX 256
 
 typedef struct {
+    int returnAddr;
+    int dataStackOffset; // TODO: needed if vars live here?
+// if vars live here, there is always a single activation
+// (call) frame on the stack. and returning from it
+// terminates the program. not a bad setup
+//
+// alternatively, if params/vars live in data stack, need to
+// keep track of how many there are here, so they can be
+// popped back off when the function returns. that might
+// work better with the current GC scheme
+
+    // TODO: list of parameters?
+    // TODO: list of local variables?
+    // TODO: function symbol, debug info?
+} CallFrame;
+
+typedef struct {
   Object* stack[STACK_MAX];
   int stackSize;
+
+  CallFrame callStack[STACK_MAX];
+  int callStackSize;
 
   /* The first object in the linked list of all objects on the heap. */
   Object* firstObject;
@@ -32,8 +52,13 @@ VM* newVM() {
   vm->firstObject = NULL;
   vm->numObjects = 0;
   vm->maxObjects = 8;
+  vm->callStackSize = 0;
   return vm;
 }
+
+// TODO: call (assert callstack not full, push callstack)
+// TODO: return (assert callstack not empty, pop callstack)
+// TODO: get data offset (0 if callstack empty)
 
 void push(VM* vm, Object* value) {
   assert(vm->stackSize < STACK_MAX, "Stack overflow!");
