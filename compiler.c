@@ -109,9 +109,18 @@ void evaluateStmt(int pass, SStatement *s, SymTbl *symTbl, FILE *out) {
 
       if (pass == 1) {
         printf("AST LET %s\n", s->identifier);
-        instr = INST_STORE;
-        evaluate(pass, s->expr, symTbl, out);
-        fwrite(&instr, sizeof(instr), 1, out);
+        struct nlist *htdata = htlookup(symTbl->syms, s->identifier);
+        if (htdata == NULL || htdata->defn == NULL) {
+          printf("ERROR: no symbol table entry found for identifier %s\n", 
+                 s->identifier);
+        } else {
+          int *addr = (int *)htdata->defn;
+          evaluate(pass, s->expr, symTbl, out);
+          instr = INST_STORE;
+          fwrite(&instr, sizeof(instr), 1, out);
+          instr = (unsigned char)(*addr);
+          fwrite(&instr, sizeof(instr), 1, out);
+        }
       }
       break;
   }
@@ -120,24 +129,24 @@ void evaluateStmt(int pass, SStatement *s, SymTbl *symTbl, FILE *out) {
 }
  
 void evaluateStmts(int pass, SStatements *ss, SymTbl *symTbl, FILE *out) {
+  unsigned char instr;
+
   if (ss == NULL) {
     printf("evaluateStmts - ss is NULL\n");
     return;
   }
 
-  // TODO: output vars
-  /* thinking is to reserve slots on the stack. thing is, 
-  would need to write instructions to push stack. are those
-  dummy objects, then? then would write STORE instructions
-  to write to those slots. not the most efficient scheme, but
-  should work
-  */
-//  if (pass == 1) {
-//      for (int = 0; i < symTbl->numVars; i++) {
-//        instr = INST_PUSH;
-//        fwrite(&instr, sizeof(instr), 1, out);
-//      }
-//  }
+  // output vars
+  // For now just reserve slots. not the most efficient scheme, but
+  // should work
+  if (pass == 1) {
+      for (int i = 0; i < symTbl->numVars; i++) {
+        instr = INST_LITERAL;
+        fwrite(&instr, sizeof(instr), 1, out);
+        instr = (unsigned char)0;
+        fwrite(&instr, sizeof(instr), 1, out);
+      }
+  }
 
   for (SStatement *s = ss->head; s; s = s->next) {
     evaluateStmt(pass, s, symTbl, out);
