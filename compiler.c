@@ -50,6 +50,17 @@ SStatements *getAST(const char *expr)
     return stmts;
 }
 
+int getSymbolAddress(SymTbl *symTbl, char *sym) {
+  struct nlist *htdata = htlookup(symTbl->syms, sym);
+  if (htdata == NULL || htdata->defn == NULL) {
+    printf("ERROR: no symbol table entry found for identifier %s\n", sym);
+    return -1;
+  }
+
+  int *addr = (int *)htdata->defn;
+  return *addr;
+}
+
 void evaluate(int pass, SExpression *e, SymTbl *symTbl, FILE *out) {
   unsigned char instr;
 
@@ -64,19 +75,10 @@ void evaluate(int pass, SExpression *e, SymTbl *symTbl, FILE *out) {
 
     case eIDENT:
       printf("AST IDENT %s\n", e->ident);
-
-// TODO: combine with other common code for loading addr from symTbl
-      struct nlist *htdata = htlookup(symTbl->syms, (char *)e->ident);
-      if (htdata == NULL || htdata->defn == NULL) {
-        printf("ERROR: no symbol table entry found for identifier %s\n", 
-               e->ident);
-      } else {
-        int *addr = (int *)htdata->defn;
-        instr = INST_LOAD;
-        fwrite(&instr, sizeof(instr), 1, out);
-        instr = (unsigned char)(*addr);
-        fwrite(&instr, sizeof(instr), 1, out);
-      }
+      instr = INST_LOAD;
+      fwrite(&instr, sizeof(instr), 1, out);
+      instr = (unsigned char)getSymbolAddress(symTbl, e->ident);
+      fwrite(&instr, sizeof(instr), 1, out);
       break;
 
     case eMULTIPLY:
@@ -126,18 +128,11 @@ void evaluateStmt(int pass, SStatement *s, SymTbl *symTbl, FILE *out) {
 
       if (pass == 1) {
         printf("AST LET %s\n", s->identifier);
-        struct nlist *htdata = htlookup(symTbl->syms, s->identifier);
-        if (htdata == NULL || htdata->defn == NULL) {
-          printf("ERROR: no symbol table entry found for identifier %s\n", 
-                 s->identifier);
-        } else {
-          int *addr = (int *)htdata->defn;
-          evaluate(pass, s->expr, symTbl, out);
-          instr = INST_STORE;
-          fwrite(&instr, sizeof(instr), 1, out);
-          instr = (unsigned char)(*addr);
-          fwrite(&instr, sizeof(instr), 1, out);
-        }
+        evaluate(pass, s->expr, symTbl, out);
+        instr = INST_STORE;
+        fwrite(&instr, sizeof(instr), 1, out);
+        instr = (unsigned char)getSymbolAddress(symTbl, s->identifier);
+        fwrite(&instr, sizeof(instr), 1, out);
       }
       break;
   }

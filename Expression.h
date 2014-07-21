@@ -24,7 +24,7 @@ typedef struct tagSExpression
     EOperationType type;///< type of operation
  
     int value;///< valid only when type is eVALUE
-    const char *ident; ///< valid only when type is eIDENT
+    char *ident; ///< valid only when type is eIDENT
     struct tagSExpression *left; ///< left side of the tree
     struct tagSExpression *right;///< right side of the tree
 } SExpression;
