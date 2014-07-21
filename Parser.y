@@ -111,6 +111,10 @@ expr
         $$ = createOperation( eMULTIPLY, $L, $R ); 
       }
     | TOKEN_LPAREN expr[E] TOKEN_RPAREN { $$ = $E; }
+    | TOKEN_IDENTIFIER {
+        printf("IDENTIFIER %s\n", $1);
+        $$ = createIdentifier($1);
+      }
     | TOKEN_NUMBER { 
         printf("NUMBER %d\n", $1);
         $$ = createNumber($1); 

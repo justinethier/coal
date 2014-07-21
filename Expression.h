@@ -11,6 +11,7 @@
 typedef enum tagEOperationType
 {
     eVALUE,
+    eIDENT,
     eMULTIPLY,
     ePLUS,
 } EOperationType;
@@ -23,6 +24,7 @@ typedef struct tagSExpression
     EOperationType type;///< type of operation
  
     int value;///< valid only when type is eVALUE
+    const char *ident; ///< valid only when type is eIDENT
     struct tagSExpression *left; ///< left side of the tree
     struct tagSExpression *right;///< right side of the tree
 } SExpression;
@@ -34,6 +36,8 @@ typedef struct tagSExpression
  */
 SExpression *createNumber(int value);
  
+SExpression *createIdentifier(const char *ident);
+
 /**
  * @brief It creates an operation
  * @param type The operation type

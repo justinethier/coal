@@ -39,6 +39,16 @@ SExpression *createNumber(int value)
  
     return b;
 }
+
+SExpression *createIdentifier(const char *ident) {
+  SExpression *b = allocateExpression();
+  if (b == NULL) return NULL;
+
+  b->type = eIDENT;
+  b->ident = ident;
+
+  return b;
+}
  
 SExpression *createOperation(EOperationType type, SExpression *left, SExpression *right)
 {

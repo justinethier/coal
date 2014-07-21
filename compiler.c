@@ -62,6 +62,23 @@ void evaluate(int pass, SExpression *e, SymTbl *symTbl, FILE *out) {
       fwrite(&instr, sizeof(instr), 1, out);
       break;
 
+    case eIDENT:
+      printf("AST IDENT %s\n", e->ident);
+
+// TODO: combine with other common code for loading addr from symTbl
+      struct nlist *htdata = htlookup(symTbl->syms, (char *)e->ident);
+      if (htdata == NULL || htdata->defn == NULL) {
+        printf("ERROR: no symbol table entry found for identifier %s\n", 
+               e->ident);
+      } else {
+        int *addr = (int *)htdata->defn;
+        instr = INST_LOAD;
+        fwrite(&instr, sizeof(instr), 1, out);
+        instr = (unsigned char)(*addr);
+        fwrite(&instr, sizeof(instr), 1, out);
+      }
+      break;
+
     case eMULTIPLY:
       printf("AST MUL\n");
       instr = INST_MUL;
