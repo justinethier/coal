@@ -247,7 +247,7 @@ void evalAdd(VM* vm) {
   Object* b = pop(vm);
   assert(a->type == OBJ_INT, "a is not an integer");
   assert(b->type == OBJ_INT, "b is not an integer");
-printf("ADD %d %d\n", a->value, b->value);
+  tracef("ADD %d %d\n", a->value, b->value);
   pushInt(vm, a->value + b->value);
 }
 
@@ -256,7 +256,7 @@ void evalMul(VM* vm) {
   Object* b = pop(vm);
   assert(a->type == OBJ_INT, "a is not an integer");
   assert(b->type == OBJ_INT, "b is not an integer");
-printf("MUL %d %d\n", a->value, b->value);
+  tracef("MUL %d %d\n", a->value, b->value);
   pushInt(vm, a->value * b->value);
 }
 
@@ -267,11 +267,13 @@ void eval(VM* vm, unsigned char bytecode[], int size) {
   while (pc < size) {
     unsigned char instruction = bytecode[pc];
 
-    printf("DEBUG OP: %d\n", instruction);
+    tracef("DEBUG OP: %d\n", instruction);
     switch (instruction) {
       case INST_LITERAL:
-printf("PUSH %d\n", (int) bytecode[pc + 1]);
-        pushInt(vm, (int) bytecode[++pc]);
+        acc = (Object *)((bytecode) + pc + 1);
+        tracef("PUSH %d\n", acc->value);
+        pushInt(vm, acc->value);
+        pc += sizeof(Object);
         break;
 
       case INST_LOAD:
@@ -317,9 +319,7 @@ int run(const char *file){
   long num = 0;
   unsigned char *bytecode = getFileContents(file, &num);
   VM* vm = newVM();
-  #if DEBUG
-  printf("Running VM, num = %ld\n", num);
-  #endif
+  tracef("Running VM, num = %ld\n", num);
   eval(vm, bytecode, (int)num); 
   free(bytecode);
 }

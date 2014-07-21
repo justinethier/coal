@@ -69,8 +69,10 @@ void evaluate(int pass, SExpression *e, SymTbl *symTbl, FILE *out) {
       printf("AST LITERAL %d\n", e->value);
       instr = INST_LITERAL;
       fwrite(&instr, sizeof(instr), 1, out);
-      instr = (unsigned char)e->value;
-      fwrite(&instr, sizeof(instr), 1, out);
+      Object lit;
+      lit.type = OBJ_INT;
+      lit.value = e->value;
+      fwrite(&lit, sizeof(Object), 1, out);
       break;
 
     case eIDENT:
@@ -155,8 +157,10 @@ void evaluateStmts(int pass, SStatements *ss, SymTbl *symTbl, FILE *out) {
       for (int i = 0; i < symTbl->numVars; i++) {
         instr = INST_LITERAL;
         fwrite(&instr, sizeof(instr), 1, out);
-        instr = (unsigned char)0;
-        fwrite(&instr, sizeof(instr), 1, out);
+        Object lit;
+        lit.type = OBJ_INT;
+        lit.value = 0;
+        fwrite(&lit, sizeof(Object), 1, out);
       }
   }
 
