@@ -13,6 +13,16 @@
 #include <stdlib.h>
 #include <unistd.h>
  
+typedef struct {
+    hashtbl *syms;
+    int numVars;
+} SymTbl;
+SymTbl *newSymTbl(){
+  SymTbl *st = (SymTbl *)malloc(sizeof(SymTbl));
+  st->syms = htinit();
+  st->numVars = 0;
+}
+
 int yyparse(SStatements **stmts, yyscan_t scanner);
  
 SStatements *getAST(const char *expr)
@@ -40,7 +50,7 @@ SStatements *getAST(const char *expr)
     return stmts;
 }
 
-void evaluate(SExpression *e, hashtbl *symTbl, FILE *out) {
+void evaluate(int pass, SExpression *e, SymTbl *symTbl, FILE *out) {
   unsigned char instr;
 
   switch (e->type) {
@@ -55,16 +65,16 @@ void evaluate(SExpression *e, hashtbl *symTbl, FILE *out) {
     case eMULTIPLY:
       printf("AST MUL\n");
       instr = INST_MUL;
-      evaluate(e->left, symTbl, out);
-      evaluate(e->right, symTbl, out);
+      evaluate(pass, e->left, symTbl, out);
+      evaluate(pass, e->right, symTbl, out);
       fwrite(&instr, sizeof(instr), 1, out);
       break;
 
     case ePLUS:
       printf("AST ADD\n");
       instr = INST_ADD;
-      evaluate(e->left, symTbl, out);
-      evaluate(e->right, symTbl, out);
+      evaluate(pass, e->left, symTbl, out);
+      evaluate(pass, e->right, symTbl, out);
       fwrite(&instr, sizeof(instr), 1, out);
       break;
 
@@ -76,49 +86,73 @@ void evaluate(SExpression *e, hashtbl *symTbl, FILE *out) {
   return;
 }
 
-void evaluateStmt(SStatement *s, hashtbl *symTbl, FILE *out) {
+void evaluateStmt(int pass, SStatement *s, SymTbl *symTbl, FILE *out) {
   unsigned char instr;
   switch (s->type) {
     case sPRINT:
-      printf("AST PRINT\n");
-      instr = INST_IO;
-      evaluate(s->expr, symTbl, out);
-      fwrite(&instr, sizeof(instr), 1, out);
+      if (pass == 1) {
+        printf("AST PRINT\n");
+        instr = INST_IO;
+        evaluate(pass, s->expr, symTbl, out);
+        fwrite(&instr, sizeof(instr), 1, out);
+      }
       break;
 
     case sLET:
-      printf("AST LET %s\n", s->identifier);
-      htput(symTbl, s->identifier, s->identifier);
-      instr = INST_STORE;
+      if (pass == 0) {
+        int *num = (int *)malloc(sizeof(int));
+        *num = symTbl->numVars++;
+        htput(symTbl->syms, s->identifier, num);
+      }
       // TODO: need to compute index into activation frame, and write it here
       // TODO: do we need to make a first pass over AST for variables?
-      evaluate(s->expr, symTbl, out);
-      fwrite(&instr, sizeof(instr), 1, out);
+
+      if (pass == 1) {
+        printf("AST LET %s\n", s->identifier);
+        instr = INST_STORE;
+        evaluate(pass, s->expr, symTbl, out);
+        fwrite(&instr, sizeof(instr), 1, out);
+      }
       break;
   }
 
   return;
 }
  
-void evaluateStmts(SStatements *ss, hashtbl *symTbl, FILE *out) {
+void evaluateStmts(int pass, SStatements *ss, SymTbl *symTbl, FILE *out) {
   if (ss == NULL) {
     printf("evaluateStmts - ss is NULL\n");
     return;
   }
 
+  // TODO: output vars
+  /* thinking is to reserve slots on the stack. thing is, 
+  would need to write instructions to push stack. are those
+  dummy objects, then? then would write STORE instructions
+  to write to those slots. not the most efficient scheme, but
+  should work
+  */
+//  if (pass == 1) {
+//      for (int = 0; i < symTbl->numVars; i++) {
+//        instr = INST_PUSH;
+//        fwrite(&instr, sizeof(instr), 1, out);
+//      }
+//  }
+
   for (SStatement *s = ss->head; s; s = s->next) {
-    evaluateStmt(s, symTbl, out);
+    evaluateStmt(pass, s, symTbl, out);
   }
 }
 
 void process(const char *inputF, FILE *output){
-  hashtbl *symTbl = htinit();
+  SymTbl *symTbl = newSymTbl();
   char *src = getFileContents(inputF, NULL);
   SStatements *ast = getAST(src);
-  evaluateStmts(ast, symTbl, output);
+  evaluateStmts(0, ast, symTbl, output);
+  evaluateStmts(1, ast, symTbl, output);
   deleteStmts(ast);
   free(src);
-  htfree(symTbl);
+  htfree(symTbl->syms);
 }
 
 //TODO: command line args to

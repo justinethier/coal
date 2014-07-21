@@ -4,7 +4,7 @@
 struct nlist { /* table entry: */
     struct nlist *next; /* next entry in chain */
     char *name; /* defined name */
-    char *defn; /* replacement text */
+    void *defn; /* replacement text */
 };
 
 typedef struct nlist *hashtbl;
@@ -19,5 +19,5 @@ unsigned hash(char *s);
 struct nlist *htlookup(struct nlist **hashtab, char *s);
 
 /* put: put (name, defn) in hashtab */
-struct nlist *htput(struct nlist **hashtab, char *name, char *defn);
+struct nlist *htput(struct nlist **hashtab, char *name, void *defn);
 #endif

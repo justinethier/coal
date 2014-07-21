@@ -41,7 +41,7 @@ struct nlist *htlookup(struct nlist **hashtab, char *s)
 
 char *strdup(char *);
 /* put: put (name, defn) in hashtab */
-struct nlist *htput(struct nlist **hashtab, char *name, char *defn)
+struct nlist *htput(struct nlist **hashtab, char *name, void *defn)
 {
     struct nlist *np;
     unsigned hashval;
@@ -54,7 +54,8 @@ struct nlist *htput(struct nlist **hashtab, char *name, char *defn)
         hashtab[hashval] = np;
     } else /* already there */
         free((void *) np->defn); /*free previous defn */
-    if ((np->defn = strdup(defn)) == NULL)
+    //if ((np->defn = strdup(defn)) == NULL)
+    if ((np->defn = defn) == NULL)
        return NULL;
     return np;
 }
