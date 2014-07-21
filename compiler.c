@@ -66,7 +66,7 @@ void evaluate(int pass, SExpression *e, SymTbl *symTbl, FILE *out) {
 
   switch (e->type) {
     case eVALUE:
-      printf("AST LITERAL %d\n", e->value);
+      tracef("AST LITERAL %d\n", e->value);
       instr = INST_LITERAL;
       fwrite(&instr, sizeof(instr), 1, out);
       Object lit;
@@ -76,7 +76,7 @@ void evaluate(int pass, SExpression *e, SymTbl *symTbl, FILE *out) {
       break;
 
     case eIDENT:
-      printf("AST IDENT %s\n", e->ident);
+      tracef("AST IDENT %s\n", e->ident);
       instr = INST_LOAD;
       fwrite(&instr, sizeof(instr), 1, out);
       instr = (unsigned char)getSymbolAddress(symTbl, e->ident);
@@ -84,7 +84,7 @@ void evaluate(int pass, SExpression *e, SymTbl *symTbl, FILE *out) {
       break;
 
     case eMULTIPLY:
-      printf("AST MUL\n");
+      trace("AST MUL\n");
       instr = INST_MUL;
       evaluate(pass, e->left, symTbl, out);
       evaluate(pass, e->right, symTbl, out);
@@ -92,7 +92,7 @@ void evaluate(int pass, SExpression *e, SymTbl *symTbl, FILE *out) {
       break;
 
     case ePLUS:
-      printf("AST ADD\n");
+      trace("AST ADD\n");
       instr = INST_ADD;
       evaluate(pass, e->left, symTbl, out);
       evaluate(pass, e->right, symTbl, out);
@@ -112,7 +112,7 @@ void evaluateStmt(int pass, SStatement *s, SymTbl *symTbl, FILE *out) {
   switch (s->type) {
     case sPRINT:
       if (pass == 1) {
-        printf("AST PRINT\n");
+        trace("AST PRINT\n");
         instr = INST_IO;
         evaluate(pass, s->expr, symTbl, out);
         fwrite(&instr, sizeof(instr), 1, out);
@@ -129,7 +129,7 @@ void evaluateStmt(int pass, SStatement *s, SymTbl *symTbl, FILE *out) {
       // TODO: do we need to make a first pass over AST for variables?
 
       if (pass == 1) {
-        printf("AST LET %s\n", s->identifier);
+        tracef("AST LET %s\n", s->identifier);
         evaluate(pass, s->expr, symTbl, out);
         instr = INST_STORE;
         fwrite(&instr, sizeof(instr), 1, out);
@@ -146,7 +146,7 @@ void evaluateStmts(int pass, SStatements *ss, SymTbl *symTbl, FILE *out) {
   unsigned char instr;
 
   if (ss == NULL) {
-    printf("evaluateStmts - ss is NULL\n");
+    trace("evaluateStmts - ss is NULL\n");
     return;
   }
 
@@ -189,17 +189,6 @@ int main(int argc, char **argv) {
   char *inputF = NULL;
   FILE *output = NULL;
 
-//char key[] = "key";
-//char testStr[] = "my test string";
-//struct nlist **ht = htinit();
-//if (htlookup(ht, "test")) printf("found test in ht\n");
-////htput(ht, key, NULL);
-//htput(ht, key, testStr);
-//if (htlookup(ht, key)) printf("found test in ht\n");
-//struct nlist *htnode = htlookup(ht, key);
-//if (htnode) printf("htnode = %s\n", htnode->defn);
-//htfree(ht);
-
   while ((option = getopt(argc, argv, "")) != -1) {
     switch(option) {
       default:
@@ -210,7 +199,7 @@ int main(int argc, char **argv) {
   if (argv[optind] != NULL) {
     char *outFname = fnameWithExt(argv[optind], "bin");
     if (outFname) {
-      printf("%s\n", outFname);
+      tracef("%s\n", outFname);
 
       inputF = argv[optind];
       output = fopen(outFname, "wb");

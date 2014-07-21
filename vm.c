@@ -120,7 +120,7 @@ void gc(VM* vm) {
 
   vm->maxObjects = vm->numObjects * 2;
 
-  printf("Collected %d objects, %d remaining.\n", numObjects - vm->numObjects,
+  tracef("Collected %d objects, %d remaining.\n", numObjects - vm->numObjects,
          vm->numObjects);
 }
 
@@ -296,6 +296,7 @@ void eval(VM* vm, unsigned char bytecode[], int size) {
       case INST_IO:
         acc = pop(vm);
         objectPrint(acc);
+        printf("\n");
         break;
 
       case INST_ADD:

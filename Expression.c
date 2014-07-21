@@ -40,7 +40,7 @@ SExpression *createNumber(int value)
     return b;
 }
 
-SExpression *createIdentifier(const char *ident) {
+SExpression *createIdentifier(char *ident) {
   SExpression *b = allocateExpression();
   if (b == NULL) return NULL;
 

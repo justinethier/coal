@@ -36,7 +36,7 @@ typedef struct tagSExpression
  */
 SExpression *createNumber(int value);
  
-SExpression *createIdentifier(const char *ident);
+SExpression *createIdentifier(char *ident);
 
 /**
  * @brief It creates an operation

@@ -8,6 +8,7 @@
 #include "Expression.h"
 #include "Parser.h"
 #include "Lexer.h"
+#include "util.h"
  
 int yyerror(SStatements **stmts, yyscan_t scanner, const char *msg) {
     // Add error handling routine as needed
@@ -68,15 +69,15 @@ input : stmts
 
 // See http://stackoverflow.com/questions/1655166/using-bison-to-parse-list-of-elements
 stmts: /* empty */ { $$ = NULL; }
-  | stmts stmt { printf("Processing stmt\n"); 
+  | stmts stmt { trace("Processing stmt\n"); 
                  if ($1 == NULL) {
-                   printf("initStmts\n");
+                   trace("initStmts\n");
                    // TODO: not good enough to handle blocks, such as
                    //       within a function
                    *stmts = $$ = initStmts($2); 
                  } else {
                    //$$ = 
-                   printf("num statements = %d\n", numStmts($$));
+                   tracef("num statements = %d\n", numStmts($$));
                    addStmt((SStatements *)$$, $2); 
                  } 
                }
@@ -85,7 +86,7 @@ stmts: /* empty */ { $$ = NULL; }
 //stmt: TOKEN_PRINT expr { *expression = $1; }
 stmt
   : TOKEN_PRINT expr[E] { 
-    printf("PRINT\n"); 
+    trace("PRINT\n"); 
     $$ = newStmt(sPRINT, $E); }
   | TOKEN_LET TOKEN_IDENTIFIER[I] TOKEN_EQUAL expr[E] {
     /*
@@ -97,7 +98,7 @@ stmt
     how to reference variables at a "lower" activation frame? EG, if I am in a function,
     how do I reference a top-level variable???
     */
-    printf("LET %s\n", $I);
+    tracef("LET %s\n", $I);
     $$ = newStmt(sLET, $E);
     $$->identifier = $I;
     }
@@ -112,11 +113,11 @@ expr
       }
     | TOKEN_LPAREN expr[E] TOKEN_RPAREN { $$ = $E; }
     | TOKEN_IDENTIFIER {
-        printf("IDENTIFIER %s\n", $1);
+        tracef("IDENTIFIER %s\n", $1);
         $$ = createIdentifier($1);
       }
     | TOKEN_NUMBER { 
-        printf("NUMBER %d\n", $1);
+        tracef("NUMBER %d\n", $1);
         $$ = createNumber($1); 
       }
     ;

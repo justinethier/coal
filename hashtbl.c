@@ -63,8 +63,20 @@ struct nlist *htput(struct nlist **hashtab, char *name, void *defn)
 char *strdup(char *s) /* make a duplicate of s */
 {
     char *p;
-    p = (char *) malloc(strlen(s)+1); /* +1 for ’\0’ */
+    p = (char *) malloc(strlen(s)+1); /* +1 for \0 */
     if (p != NULL)
        strcpy(p, s);
     return p;
 }
+
+// Misc test code:
+//char key[] = "key";
+//char testStr[] = "my test string";
+//struct nlist **ht = htinit();
+//if (htlookup(ht, "test")) printf("found test in ht\n");
+////htput(ht, key, NULL);
+//htput(ht, key, testStr);
+//if (htlookup(ht, key)) printf("found test in ht\n");
+//struct nlist *htnode = htlookup(ht, key);
+//if (htnode) printf("htnode = %s\n", htnode->defn);
+//htfree(ht);
