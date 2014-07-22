@@ -12,7 +12,7 @@
  
 int yyerror(SStatements **stmts, yyscan_t scanner, const char *msg) {
     // Add error handling routine as needed
-    fprintf(stderr,"Error:%s\n",msg); return 0;
+    fprintf(stderr,"Error:%s\n", msg); return 0;
 }
  
 %}
@@ -29,6 +29,8 @@ typedef void* yyscan_t;
 %output  "Parser.c"
 %defines "Parser.h"
  
+//%locations
+
 %define api.pure
 %lex-param   { yyscan_t scanner }
 %parse-param { SStatements **stmts }
@@ -86,14 +88,17 @@ stmts: /* empty */ { $$ = NULL; }
                }
   | TOKEN_SUB TOKEN_IDENTIFIER[I] TOKEN_LPAREN TOKEN_RPAREN
     stmts
-    TOKEN_END TOKEN_SUB {}
+    TOKEN_END TOKEN_SUB {
+      tracef("SUB %s\n", $I);
+    }
   ;
 
-params: param TOKEN_COMMA params {}
-  | param {}
-  ;
-
-param: TOKEN_IDENTIFIER {}
+//params: /* empty */ { $$ = NULL; }
+//  | param TOKEN_COMMA params { $$ = NULL; }
+//  | param { $$ = NULL; }
+//  ;
+//
+//param: TOKEN_IDENTIFIER {}
 
 //stmt: TOKEN_PRINT expr { *expression = $1; }
 stmt
