@@ -23,8 +23,11 @@ LPAREN      "("
 RPAREN      ")"
 PLUS        "+"
 MULTIPLY    "*"
+COMMA       ","
 PRINT       "PRINT"
 LET         "LET"
+SUB         "SUB"
+END         "END"
  
 DIGIT       [0-9]
 LETTER      [a-zA-Z_]
@@ -39,11 +42,14 @@ WS          [ \r\n\t]*
  
 {LET}           { return TOKEN_LET; }
 {PRINT}         { return TOKEN_PRINT; }
+{SUB}           { return TOKEN_SUB; }
+{END}           { return TOKEN_END; }
 {LETTER}({LETTER}|{DIGIT})*   { yylval->ident = _strdup(yytext); return TOKEN_IDENTIFIER; }
 
 "="             { return TOKEN_EQUAL; }
 {MULTIPLY}      { return TOKEN_MULTIPLY; }
 {PLUS}          { return TOKEN_PLUS; }
+{COMMA}         { return TOKEN_COMMA; }
 {LPAREN}        { return TOKEN_LPAREN; }
 {RPAREN}        { return TOKEN_RPAREN; }
 .               {  }

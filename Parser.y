@@ -47,10 +47,13 @@ typedef void* yyscan_t;
  
 %token TOKEN_LET
 %token TOKEN_PRINT
+%token TOKEN_SUB
+%token TOKEN_END
 %token TOKEN_LPAREN
 %token TOKEN_RPAREN
 %token TOKEN_PLUS
 %token TOKEN_MULTIPLY
+%token TOKEN_COMMA
 %token TOKEN_EQUAL
 %token <value> TOKEN_NUMBER
 %token <ident> TOKEN_IDENTIFIER
@@ -81,7 +84,16 @@ stmts: /* empty */ { $$ = NULL; }
                    addStmt((SStatements *)$$, $2); 
                  } 
                }
+  | TOKEN_SUB TOKEN_IDENTIFIER[I] TOKEN_LPAREN TOKEN_RPAREN
+    stmts
+    TOKEN_END TOKEN_SUB {}
   ;
+
+params: param TOKEN_COMMA params {}
+  | param {}
+  ;
+
+param: TOKEN_IDENTIFIER {}
 
 //stmt: TOKEN_PRINT expr { *expression = $1; }
 stmt
