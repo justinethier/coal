@@ -137,6 +137,14 @@ void evaluateStmt(int pass, SStatement *s, SymTbl *symTbl, FILE *out) {
         fwrite(&instr, sizeof(instr), 1, out);
       }
       break;
+
+    case sSUB:
+// TODO: how to call into a function in the VM?  may need to switch code gen around to 
+//       return number of bytes written out, and then compute function offsets. will this
+//       require yet another pass to achieve?
+      printf("TODO: store func name into sym table on pass 0\n");
+      exit(1);
+      break;
   }
 
   return;
