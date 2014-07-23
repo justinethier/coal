@@ -14,7 +14,8 @@ int yyerror(SStatements **stmts, yyscan_t scanner, const char *msg) {
     // Add error handling routine as needed
     fprintf(stderr,"Error:%s\n", msg); return 0;
 }
- 
+
+SStatements *ParserAstRoot = NULL;
 %}
  
 %code requires {
@@ -23,7 +24,8 @@ int yyerror(SStatements **stmts, yyscan_t scanner, const char *msg) {
 #define YY_TYPEDEF_YY_SCANNER_T
 typedef void* yyscan_t;
 #endif
- 
+
+extern SStatements *ParserAstRoot;
 }
  
 %output  "Parser.c"
@@ -69,7 +71,8 @@ typedef void* yyscan_t;
 // See http://www.gnu.org/software/bison/manual/bison.html#Rpcalc-Rules
 //input
 //    : expr { *expression = $1; }
-input : stmts { stmts = NULL; }
+input : stmts { 
+  stmts = NULL; }
     ;
 
 // See http://stackoverflow.com/questions/1655166/using-bison-to-parse-list-of-elements
@@ -80,6 +83,11 @@ stmts: /* empty */ { $$ = NULL; }
                    // TODO: not good enough to handle blocks, such as
                    //       within a function
                    *stmts = $$ = initStmts($2); 
+
+                   if (ParserAstRoot == NULL){
+                     trace("Initializing AST root\n");
+                     ParserAstRoot = *stmts;
+                   }
                  } else {
                    //$$ = 
                    tracef("num statements = %d\n", numStmts($$));

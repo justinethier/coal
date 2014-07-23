@@ -12,7 +12,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
- 
+
 typedef struct {
     hashtbl *syms;
     int numVars;
@@ -47,7 +47,7 @@ SStatements *getAST(const char *expr)
  
     yylex_destroy(scanner);
  
-    return stmts;
+    return ParserAstRoot; //stmts;
 }
 
 int getSymbolAddress(SymTbl *symTbl, char *sym) {

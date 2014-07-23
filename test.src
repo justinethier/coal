@@ -6,6 +6,7 @@ PRINT 3
 LET x = 1 + 2 * 6 * 7
 LET y = 42
 PRINT x + y
+PRINT test
 
 SUB test ()
   PRINT 10
