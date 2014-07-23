@@ -107,6 +107,7 @@ SStatement *newStmt(EStatementType type, SExpression *expr) {
   s->type = type;
   s->expr = expr;
   s->identifier = NULL;
+  s->func = NULL;
   s->next = NULL;
   return s;
 }

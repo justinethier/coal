@@ -69,7 +69,7 @@ typedef void* yyscan_t;
 // See http://www.gnu.org/software/bison/manual/bison.html#Rpcalc-Rules
 //input
 //    : expr { *expression = $1; }
-input : stmts
+input : stmts { stmts = NULL; }
     ;
 
 // See http://stackoverflow.com/questions/1655166/using-bison-to-parse-list-of-elements
@@ -86,11 +86,6 @@ stmts: /* empty */ { $$ = NULL; }
                    addStmt((SStatements *)$$, $2); 
                  } 
                }
-  | TOKEN_SUB TOKEN_IDENTIFIER[I] TOKEN_LPAREN TOKEN_RPAREN
-    stmts
-    TOKEN_END TOKEN_SUB {
-      tracef("SUB %s\n", $I);
-    }
   ;
 
 //params: /* empty */ { $$ = NULL; }
@@ -118,6 +113,16 @@ stmt
     tracef("LET %s\n", $I);
     $$ = newStmt(sLET, $E);
     $$->identifier = $I;
+    }
+  | TOKEN_SUB TOKEN_IDENTIFIER[I] TOKEN_LPAREN TOKEN_RPAREN
+    stmts
+    TOKEN_END TOKEN_SUB {
+      tracef("SUB %s\n", $I);
+      $$ = newStmt(sSUB, NULL);
+      $$->func = (SFunction *)malloc(sizeof(SFunction));
+      $$->func->type = 0; // SUB
+      $$->func->name = $I;
+      $$->func->body = NULL; // TODO
     }
   ;
 

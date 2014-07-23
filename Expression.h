@@ -58,12 +58,20 @@ typedef enum tagEStatementType
     sNULL
   , sPRINT
   , sLET
+  , sSUB
 } EStatementType;
+
+typedef struct tagFunction {
+    int type;
+    char *name;
+    void *body;
+} SFunction;
 
 typedef struct tagSStatement {
   EStatementType type;  
   SExpression *expr;
   char *identifier;
+  SFunction *func;
   struct tagSStatement *next;
 } SStatement;
 
