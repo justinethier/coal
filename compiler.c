@@ -155,10 +155,11 @@ size_t codegenStmt(int pass, SStatement *s, SymTbl *symTbl, FILE *out, size_t nu
       if (pass == 0) {
         AstSym *sym = (AstSym *)malloc(sizeof(AstSym));
         sym->type = sSUB;
-        sym->addr = 0; // TODO
+        sym->addr = numBytes;
         htput(symTbl->syms, s->func->name, sym);
       }
-      // TODO: write bytecode
+      // TODO: parser needs to load body, this code needs to
+      //       write it to the output image
       printf("TODO: place SUB at %d\n", numBytes);
 
       break;
