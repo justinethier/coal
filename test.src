@@ -7,9 +7,9 @@ LET x = 1 + 2 * 6 * 7
 LET y = 42
 PRINT x + y
 REM PRINT test
-REM 
-REM SUB test ()
-REM   PRINT 10
-REM   PRINT 20
-REM   PRINT 30
-REM END SUB
+
+SUB test ()
+  PRINT 10
+  PRINT 20
+  PRINT 30
+END SUB

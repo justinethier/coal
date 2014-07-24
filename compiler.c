@@ -61,43 +61,50 @@ int getSymbolAddress(SymTbl *symTbl, char *sym) {
   return symData->addr;
 }
 
-size_t codegen(int pass, SExpression *e, SymTbl *symTbl, FILE *out) {
+size_t fwritep(int pass, const void *ptr, size_t size, size_t nmemb, FILE *stream) {
+  if (pass == 0){
+    return size * nmemb; // Expected num bytes
+  }
+
+  return fwrite(ptr, size, nmemb, stream);
+}
+
+size_t codegen(int pass, SExpression *e, SymTbl *symTbl, FILE *out, size_t numBytes) {
   unsigned char instr;
-  size_t numBytes = 0;
 
   switch (e->type) {
     case eVALUE:
       tracef("AST LITERAL %d\n", e->value);
       instr = INST_LITERAL;
-      numBytes += sizeof(instr) * fwrite(&instr, sizeof(instr), 1, out);
+      numBytes += sizeof(instr) * fwritep(pass, &instr, sizeof(instr), 1, out);
       Object lit;
       lit.type = OBJ_INT;
       lit.value = e->value;
-      numBytes += sizeof(Object) * fwrite(&lit, sizeof(Object), 1, out);
+      numBytes += sizeof(Object) * fwritep(pass, &lit, sizeof(Object), 1, out);
       break;
 
     case eIDENT:
       tracef("AST IDENT %s\n", e->ident);
       instr = INST_LOAD;
-      numBytes += sizeof(instr) * fwrite(&instr, sizeof(instr), 1, out);
+      numBytes += sizeof(instr) * fwritep(pass, &instr, sizeof(instr), 1, out);
       instr = (unsigned char)getSymbolAddress(symTbl, e->ident);
-      numBytes += sizeof(instr) * fwrite(&instr, sizeof(instr), 1, out);
+      numBytes += sizeof(instr) * fwritep(pass, &instr, sizeof(instr), 1, out);
       break;
 
     case eMULTIPLY:
       trace("AST MUL\n");
       instr = INST_MUL;
-      numBytes += codegen(pass, e->left, symTbl, out);
-      numBytes += codegen(pass, e->right, symTbl, out);
-      numBytes += sizeof(instr) * fwrite(&instr, sizeof(instr), 1, out);
+      numBytes = codegen(pass, e->left, symTbl, out, numBytes);
+      numBytes = codegen(pass, e->right, symTbl, out, numBytes);
+      numBytes += sizeof(instr) * fwritep(pass, &instr, sizeof(instr), 1, out);
       break;
 
     case ePLUS:
       trace("AST ADD\n");
       instr = INST_ADD;
-      numBytes += codegen(pass, e->left, symTbl, out);
-      numBytes += codegen(pass, e->right, symTbl, out);
-      numBytes += sizeof(instr) * fwrite(&instr, sizeof(instr), 1, out);
+      numBytes = codegen(pass, e->left, symTbl, out, numBytes);
+      numBytes = codegen(pass, e->right, symTbl, out, numBytes);
+      numBytes += sizeof(instr) * fwritep(pass, &instr, sizeof(instr), 1, out);
       break;
 
     default:
@@ -108,18 +115,17 @@ size_t codegen(int pass, SExpression *e, SymTbl *symTbl, FILE *out) {
   return numBytes;
 }
 
-size_t codegenStmt(int pass, SStatement *s, SymTbl *symTbl, FILE *out) {
+size_t codegenStmt(int pass, SStatement *s, SymTbl *symTbl, FILE *out, size_t numBytes) {
   unsigned char instr;
-  size_t numBytes = 0;
 
   switch (s->type) {
     case sPRINT:
       if (pass == 1) {
         trace("AST PRINT\n");
-        instr = INST_IO;
-        numBytes += codegen(pass, s->expr, symTbl, out);
-        numBytes += sizeof(instr) * fwrite(&instr, sizeof(instr), 1, out);
       }
+      instr = INST_IO;
+      numBytes = codegen(pass, s->expr, symTbl, out, numBytes);
+      numBytes += sizeof(instr) * fwritep(pass, &instr, sizeof(instr), 1, out);
       break;
 
     case sLET:
@@ -134,12 +140,12 @@ size_t codegenStmt(int pass, SStatement *s, SymTbl *symTbl, FILE *out) {
 
       if (pass == 1) {
         tracef("AST LET %s\n", s->identifier);
-        numBytes += codegen(pass, s->expr, symTbl, out);
-        instr = INST_STORE;
-        numBytes += sizeof(instr) * fwrite(&instr, sizeof(instr), 1, out);
-        instr = (unsigned char)getSymbolAddress(symTbl, s->identifier);
-        numBytes += sizeof(instr) * fwrite(&instr, sizeof(instr), 1, out);
       }
+      numBytes = codegen(pass, s->expr, symTbl, out, numBytes);
+      instr = INST_STORE;
+      numBytes += sizeof(instr) * fwritep(pass, &instr, sizeof(instr), 1, out);
+      instr = (unsigned char)getSymbolAddress(symTbl, s->identifier);
+      numBytes += sizeof(instr) * fwritep(pass, &instr, sizeof(instr), 1, out);
       break;
 
     case sSUB:
@@ -150,8 +156,10 @@ size_t codegenStmt(int pass, SStatement *s, SymTbl *symTbl, FILE *out) {
         AstSym *sym = (AstSym *)malloc(sizeof(AstSym));
         sym->type = sSUB;
         sym->addr = 0; // TODO
-        htput(symTbl->syms, s->identifier, sym);
+        htput(symTbl->syms, s->func->name, sym);
       }
+      // TODO: write bytecode
+      printf("TODO: place SUB at %d\n", numBytes);
 
       break;
   }
@@ -159,9 +167,8 @@ size_t codegenStmt(int pass, SStatement *s, SymTbl *symTbl, FILE *out) {
   return numBytes;
 }
  
-size_t codegenStmts(int pass, SStatements *ss, SymTbl *symTbl, FILE *out) {
+size_t codegenStmts(int pass, SStatements *ss, SymTbl *symTbl, FILE *out, size_t numBytes) {
   unsigned char instr;
-  size_t numBytes = 0;
 
   if (ss == NULL) {
     trace("codegenStmts - ss is NULL\n");
@@ -171,35 +178,30 @@ size_t codegenStmts(int pass, SStatements *ss, SymTbl *symTbl, FILE *out) {
   // output vars
   // For now just reserve slots. not the most efficient scheme, but
   // should work
-  if (pass == 1) {
-      for (int i = 0; i < symTbl->numVars; i++) {
-        instr = INST_LITERAL;
-        numBytes += sizeof(instr) * fwrite(&instr, sizeof(instr), 1, out);
-        Object lit;
-        lit.type = OBJ_INT;
-        lit.value = 0;
-        numBytes += sizeof(Object) * fwrite(&lit, sizeof(Object), 1, out);
-      }
+  for (int i = 0; i < symTbl->numVars; i++) {
+    instr = INST_LITERAL;
+    numBytes += sizeof(instr) * fwritep(pass, &instr, sizeof(instr), 1, out);
+    Object lit;
+    lit.type = OBJ_INT;
+    lit.value = 0;
+    numBytes += sizeof(Object) * fwritep(pass, &lit, sizeof(Object), 1, out);
   }
 
   for (SStatement *s = ss->head; s; s = s->next) {
-    numBytes += codegenStmt(pass, s, symTbl, out);
+    numBytes = codegenStmt(pass, s, symTbl, out, numBytes);
   }
 
   return numBytes;
-TODO: may not be good enough to record bytes when writing, because cannot record
-location of functions like that. may need to make a pass that just returns the num
-of bytes expected to write without writing them (possible?) then record that information.
-could then make a final pass to write the acutal code, including exact function locations.
 }
 
 void process(const char *inputF, FILE *output){
   SymTbl *symTbl = newSymTbl();
   char *src = getFileContents(inputF, NULL);
+  size_t numBytes = 0;
   SStatements *ast = getAST(src);
-  codegenStmts(0, ast, symTbl, output);
-  size_t bytes = codegenStmts(1, ast, symTbl, output);
-  tracef("Wrote %d bytes\n", bytes);
+  numBytes = codegenStmts(0, ast, symTbl, output, 0);
+  numBytes = codegenStmts(1, ast, symTbl, output, 0);
+  tracef("Wrote %d bytes\n", numBytes);
   deleteStmts(ast);
   free(src);
   htfree(symTbl->syms);
