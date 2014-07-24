@@ -57,8 +57,8 @@ int getSymbolAddress(SymTbl *symTbl, char *sym) {
     return -1;
   }
 
-  int *addr = (int *)htdata->defn;
-  return *addr;
+  AstSym *symData = (AstSym *)htdata->defn;
+  return symData->addr;
 }
 
 void evaluate(int pass, SExpression *e, SymTbl *symTbl, FILE *out) {
@@ -121,9 +121,10 @@ void evaluateStmt(int pass, SStatement *s, SymTbl *symTbl, FILE *out) {
 
     case sLET:
       if (pass == 0) {
-        int *num = (int *)malloc(sizeof(int));
-        *num = symTbl->numVars++;
-        htput(symTbl->syms, s->identifier, num);
+        AstSym *sym = (AstSym *)malloc(sizeof(AstSym));
+        sym->type = sLET;
+        sym->addr = symTbl->numVars++;
+        htput(symTbl->syms, s->identifier, sym);
       }
       // TODO: need to compute index into activation frame, and write it here
       // TODO: do we need to make a first pass over AST for variables?
@@ -142,8 +143,13 @@ void evaluateStmt(int pass, SStatement *s, SymTbl *symTbl, FILE *out) {
 // TODO: how to call into a function in the VM?  may need to switch code gen around to 
 //       return number of bytes written out, and then compute function offsets. will this
 //       require yet another pass to achieve?
-      printf("TODO: store func name into sym table on pass 0\n");
-      exit(1);
+      if (pass == 0) {
+        AstSym *sym = (AstSym *)malloc(sizeof(AstSym));
+        sym->type = sSUB;
+        sym->addr = 0; // TODO
+        htput(symTbl->syms, s->identifier, sym);
+      }
+
       break;
   }
 

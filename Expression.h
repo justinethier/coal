@@ -61,6 +61,11 @@ typedef enum tagEStatementType
   , sSUB
 } EStatementType;
 
+typedef struct astSym {
+    int type;
+    int addr;
+} AstSym;
+
 typedef struct tagFunction {
     int type;
     char *name;
