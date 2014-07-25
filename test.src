@@ -1,3 +1,5 @@
+DECLARE SUB test()
+
 REM PRINT 4 + 2*10 + 3*( 5 + 1 )
 REM PRINT 1 + 2 * 3
 PRINT 1
@@ -6,7 +8,7 @@ PRINT 3
 LET x = 1 + 2 * 6 * 7
 LET y = 42
 PRINT x + y
-REM PRINT test
+PRINT test
 
 SUB test ()
   PRINT 10
