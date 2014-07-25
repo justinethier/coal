@@ -123,14 +123,14 @@ stmt
     $$->identifier = $I;
     }
   | TOKEN_SUB TOKEN_IDENTIFIER[I] TOKEN_LPAREN TOKEN_RPAREN
-    stmts
+    stmts[S]
     TOKEN_END TOKEN_SUB {
       tracef("SUB %s\n", $I);
       $$ = newStmt(sSUB, NULL);
       $$->func = (SFunction *)malloc(sizeof(SFunction));
       $$->func->type = 0; // SUB
       $$->func->name = $I;
-      $$->func->body = NULL; // TODO
+      $$->func->body = $S;
     }
   ;
 

@@ -25,6 +25,13 @@ SymTbl *newSymTbl(){
 
 int yyparse(SStatements **stmts, yyscan_t scanner);
  
+SStatements *getAST(const char *expr);
+int getSymbolAddress(SymTbl *symTbl, char *sym);
+size_t fwritep(int pass, const void *ptr, size_t size, size_t nmemb, FILE *stream);
+size_t codegen(int pass, SExpression *e, SymTbl *symTbl, FILE *out, size_t numBytes);
+size_t codegenStmt(int pass, SStatement *s, SymTbl *symTbl, FILE *out, size_t numBytes);
+size_t codegenStmts(int pass, SStatements *ss, SymTbl *symTbl, FILE *out, size_t numBytes);
+
 SStatements *getAST(const char *expr)
 {
     SStatements *stmts;
@@ -149,19 +156,16 @@ size_t codegenStmt(int pass, SStatement *s, SymTbl *symTbl, FILE *out, size_t nu
       break;
 
     case sSUB:
-// TODO: how to call into a function in the VM?  may need to switch code gen around to 
-//       return number of bytes written out, and then compute function offsets. will this
-//       require yet another pass to achieve?
       if (pass == 0) {
         AstSym *sym = (AstSym *)malloc(sizeof(AstSym));
         sym->type = sSUB;
         sym->addr = numBytes;
         htput(symTbl->syms, s->func->name, sym);
       }
-      // TODO: parser needs to load body, this code needs to
-      //       write it to the output image
-      printf("TODO: place SUB at %d\n", numBytes);
 
+      // TODO: allocate new symbol table?
+      //       then how do we do two passes? need to store it in function AST?
+      numBytes = codegenStmts(pass, (SStatements *)s->func->body, symTbl, out, numBytes);
       break;
   }
 
